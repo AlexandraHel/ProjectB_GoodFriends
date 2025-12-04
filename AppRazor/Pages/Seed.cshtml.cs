@@ -41,7 +41,7 @@ namespace AppRazor.Pages
                 }
                 await _admin_service.SeedAsync(NrOfItemsToSeed);
 
-               // return Redirect($"~/Friends/Overview");
+               return Redirect($"~/Friends/Overview");
             }
             return Page();
         }

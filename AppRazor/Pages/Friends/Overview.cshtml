@@ -1,15 +1,15 @@
 ﻿@page
-
-@using AppRazor.Pages.Friends //Behövs inte?
-@using System.Collections.Generic //Behövs inte?
-@using System.Linq //Behövs inte?
+//Behövs inte nedan?
+@using AppRazor.Pages.Friends
+@using System.Collections.Generic
+@using System.Linq
 
 @model AppRazor.Pages.Friends.OverviewModel
 @{
 }
 
        <div class="container px-4 py-4" id="webapi-info">
-          <h2 class="pb-2 border-bottom">Friends info</h2>
+          <h2 class="pb-2 border-bottom">Friends overview per country</h2>
           <p>Below you see an overview of the content presented by the WebApi. Click on the link to see details. </p>
 
           <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 py-5">
@@ -19,13 +19,27 @@
             <div class="col d-flex align-items-start">
               <svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em"><use xlink:href="#boombox"/></svg>
               <div>
-                <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">@(item.City !=null ? item.City : item.Country)</h3>
+                <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">@item.Country</h3>
                 <p>@item.NrFriends friends</p>
-                <a href="#list-of-items" class="btn btn-primary">
+                <!--<a href="#list-of-items" class="btn btn-primary">
                   See details
-                </a>    
+                </a>  -->
               </div>
             </div>   
+          }
+          
+          @if (Model.FriendsWithoutCountry > 0)
+          {
+            <div class="col d-flex align-items-start">
+              <svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em"><use xlink:href="#boombox"/></svg>
+              <div>
+                <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">No address</h3>
+                <p>@Model.FriendsWithoutCountry friends</p>
+                <!--<a href="#list-of-items" class="btn btn-primary">
+                  See details
+                </a>  -->
+              </div>
+            </div>
           }
           }
 

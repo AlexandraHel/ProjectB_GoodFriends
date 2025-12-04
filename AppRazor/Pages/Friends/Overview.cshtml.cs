@@ -11,25 +11,37 @@ namespace AppRazor.Pages.Friends
     {
         private readonly IAddressesService _addressesService;
         private readonly IAdminService _adminService;
-        //private readonly IFriendsService _friendsService;
-        //public List<IFriend> Friends { get; set; } = new List<IFriend>();
+      
         public IEnumerable<GstUsrInfoFriendsDto>? CountryInfo;
+        public int FriendsWithoutCountry { get; set; }
+        public List<IAddress> Addresses { get; set; } = new List<IAddress>();
      
         public async Task<IActionResult> OnGet()
         {
-            var addresses = await _addressesService.ReadAddressesAsync(true, false, "Denmark", 0 ,50);
             var info = await _adminService.GuestInfoAsync();
-            CountryInfo = info.Item.Friends.Where(f=> f.Country == "Denmark");
+         
+            // Vänner med Country - gruppera och summera
+            CountryInfo = info.Item.Friends
+                .Where(f => !string.IsNullOrEmpty(f.Country))
+                .GroupBy(f => f.Country)
+                .Select(g => new GstUsrInfoFriendsDto
+                {
+                    Country = g.Key,
+                    NrFriends = g.Sum(f => f.NrFriends)
+                });
+            
+            // Vänner utan Country
+            FriendsWithoutCountry = info.Item.Friends
+                .Where(f => string.IsNullOrEmpty(f.Country))
+                .Sum(f => f.NrFriends);
+         
             return Page();
         }
 
-        public OverviewModel(IAddressesService addressesService, IAdminService adminService
-                             /*IFriendsService friendsService,
-                             IPetsService petsService*/)
+        public OverviewModel(IAddressesService addressesService, IAdminService adminService)
         {
             _addressesService = addressesService;
             _adminService = adminService;
-            //_friendsService = friendsService;
         }
     }
 }
