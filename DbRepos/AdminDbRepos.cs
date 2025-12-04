@@ -52,8 +52,6 @@ public class AdminDbRepos
 
     public async Task<ResponseItemDto<GstUsrInfoAllDto>> SeedAsync(int nrOfItems)
     {
-        //First of all make sure the database is cleared from all seeded data
-        await RemoveSeedAsync(true);
 
         //Create a seeder
         var fn = Path.GetFullPath(_seedSource);

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace DbContext.Migrations.PostgresDbContext
+namespace DbContext.Migrations.mysqlDbContext
 {
     /// <inheritdoc />
     public partial class miInitial : Migration
@@ -14,69 +14,63 @@ namespace DbContext.Migrations.PostgresDbContext
             migrationBuilder.EnsureSchema(
                 name: "supusr");
 
-            migrationBuilder.EnsureSchema(
-                name: "dbo");
+            migrationBuilder.AlterDatabase()
+                .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "Addresses",
                 schema: "supusr",
                 columns: table => new
                 {
-                    AddressId = table.Column<Guid>(type: "uuid", nullable: false),
-                    StreetAddress = table.Column<string>(type: "varchar(200)", nullable: false),
-                    ZipCode = table.Column<int>(type: "integer", nullable: false),
-                    City = table.Column<string>(type: "varchar(200)", nullable: false),
-                    Country = table.Column<string>(type: "varchar(200)", nullable: false),
-                    Seeded = table.Column<bool>(type: "boolean", nullable: false)
+                    AddressId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    StreetAddress = table.Column<string>(type: "varchar(200)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ZipCode = table.Column<int>(type: "int", nullable: false),
+                    City = table.Column<string>(type: "varchar(200)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Country = table.Column<string>(type: "varchar(200)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Seeded = table.Column<bool>(type: "tinyint(1)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Addresses", x => x.AddressId);
-                });
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "Quotes",
                 schema: "supusr",
                 columns: table => new
                 {
-                    QuoteId = table.Column<Guid>(type: "uuid", nullable: false),
-                    QuoteText = table.Column<string>(type: "varchar(200)", nullable: true),
-                    Author = table.Column<string>(type: "varchar(200)", nullable: true),
-                    Seeded = table.Column<bool>(type: "boolean", nullable: false)
+                    QuoteId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    QuoteText = table.Column<string>(type: "varchar(200)", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Author = table.Column<string>(type: "varchar(200)", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Seeded = table.Column<bool>(type: "tinyint(1)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Quotes", x => x.QuoteId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Users",
-                schema: "dbo",
-                columns: table => new
-                {
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserName = table.Column<string>(type: "varchar(200)", nullable: false),
-                    Password = table.Column<string>(type: "varchar(200)", nullable: false),
-                    UserRole = table.Column<string>(type: "varchar(200)", nullable: false),
-                    Email = table.Column<string>(type: "varchar(200)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Users", x => x.UserId);
-                });
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "Friends",
                 schema: "supusr",
                 columns: table => new
                 {
-                    FriendId = table.Column<Guid>(type: "uuid", nullable: false),
-                    FirstName = table.Column<string>(type: "varchar(200)", nullable: false),
-                    AddressId = table.Column<Guid>(type: "uuid", nullable: true),
-                    LastName = table.Column<string>(type: "varchar(200)", nullable: true),
-                    Email = table.Column<string>(type: "varchar(200)", nullable: true),
-                    Birthday = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    Seeded = table.Column<bool>(type: "boolean", nullable: false)
+                    FriendId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    FirstName = table.Column<string>(type: "varchar(200)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    AddressId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    LastName = table.Column<string>(type: "varchar(200)", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Email = table.Column<string>(type: "varchar(200)", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Birthday = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    Seeded = table.Column<bool>(type: "tinyint(1)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -88,15 +82,16 @@ namespace DbContext.Migrations.PostgresDbContext
                         principalTable: "Addresses",
                         principalColumn: "AddressId",
                         onDelete: ReferentialAction.SetNull);
-                });
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "FriendDbMQuoteDbM",
                 schema: "supusr",
                 columns: table => new
                 {
-                    FriendsDbMFriendId = table.Column<Guid>(type: "uuid", nullable: false),
-                    QuotesDbMQuoteId = table.Column<Guid>(type: "uuid", nullable: false)
+                    FriendsDbMFriendId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    QuotesDbMQuoteId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci")
                 },
                 constraints: table =>
                 {
@@ -115,21 +110,25 @@ namespace DbContext.Migrations.PostgresDbContext
                         principalTable: "Quotes",
                         principalColumn: "QuoteId",
                         onDelete: ReferentialAction.Cascade);
-                });
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "Pets",
                 schema: "supusr",
                 columns: table => new
                 {
-                    PetId = table.Column<Guid>(type: "uuid", nullable: false),
-                    FriendId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "varchar(200)", nullable: false),
-                    strKind = table.Column<string>(type: "varchar(200)", nullable: true),
-                    strMood = table.Column<string>(type: "varchar(200)", nullable: true),
-                    Kind = table.Column<int>(type: "integer", nullable: false),
-                    Mood = table.Column<int>(type: "integer", nullable: false),
-                    Seeded = table.Column<bool>(type: "boolean", nullable: false)
+                    PetId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    FriendId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    Name = table.Column<string>(type: "varchar(200)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    strKind = table.Column<string>(type: "varchar(200)", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    strMood = table.Column<string>(type: "varchar(200)", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Kind = table.Column<int>(type: "int", nullable: false),
+                    Mood = table.Column<int>(type: "int", nullable: false),
+                    Seeded = table.Column<bool>(type: "tinyint(1)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -141,7 +140,8 @@ namespace DbContext.Migrations.PostgresDbContext
                         principalTable: "Friends",
                         principalColumn: "FriendId",
                         onDelete: ReferentialAction.Cascade);
-                });
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Addresses_StreetAddress_ZipCode_City_Country",
@@ -191,10 +191,6 @@ namespace DbContext.Migrations.PostgresDbContext
             migrationBuilder.DropTable(
                 name: "Pets",
                 schema: "supusr");
-
-            migrationBuilder.DropTable(
-                name: "Users",
-                schema: "dbo");
 
             migrationBuilder.DropTable(
                 name: "Quotes",
