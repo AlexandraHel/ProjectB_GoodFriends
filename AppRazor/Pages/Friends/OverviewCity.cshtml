@@ -1,0 +1,34 @@
+@page
+
+@using AppRazor.Pages.Friends
+@using System.Collections.Generic
+@using System.Linq
+
+@model AppRazor.Pages.Friends.OverviewCityModel
+@{
+}
+
+       <div class="container px-4 py-4" id="webapi-info">
+          <h2 class="pb-2 border-bottom">Friends overview by city in (Country)</h2>
+          <p>Below is the number of friends who live in each city and their total number of pets.</p>
+
+          <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 py-5">
+
+          @foreach (var item in Model.FriendsInfo)
+          {
+            <div class="col d-flex align-items-start">
+              <svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em"><use xlink:href="#buildings"/></svg>
+              <div>
+                <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">@item.City</h3>
+                <p>@item.NrFriends friends</p>
+              
+                @if(Model.PetsInfo?.FirstOrDefault(p => p.City == item.City)?.NrPets != null)  {<p> @Model.PetsInfo.FirstOrDefault(p => p.City == item.City)?.NrPets pets</p> }
+                else{
+                  <p>0 pets</p>
+                }
+              </div>
+            </div>   
+          }
+          </div>
+        </div>
+      

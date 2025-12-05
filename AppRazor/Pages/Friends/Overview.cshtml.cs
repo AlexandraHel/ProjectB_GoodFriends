@@ -9,20 +9,17 @@ namespace AppRazor.Pages.Friends
 {
     public class OverviewModel : PageModel
     {
-        private readonly IAddressesService _addressesService;
         private readonly IAdminService _adminService;
       
         public IEnumerable<GstUsrInfoFriendsDto>? CountryInfo;
         public int FriendsWithoutCountry { get; set; }
-        public List<IAddress> Addresses { get; set; } = new List<IAddress>();
      
         public async Task<IActionResult> OnGet()
         {
             var info = await _adminService.GuestInfoAsync();
          
-            // Vänner med Country - gruppera och summera
             CountryInfo = info.Item.Friends
-                .Where(f => !string.IsNullOrEmpty(f.Country))
+                .Where(f => f.City == null && f.Country != null)
                 .GroupBy(f => f.Country)
                 .Select(g => new GstUsrInfoFriendsDto
                 {
@@ -30,18 +27,17 @@ namespace AppRazor.Pages.Friends
                     NrFriends = g.Sum(f => f.NrFriends)
                 });
             
-            // Vänner utan Country
             FriendsWithoutCountry = info.Item.Friends
-                .Where(f => string.IsNullOrEmpty(f.Country))
+                .Where(f => f.Country == null)
                 .Sum(f => f.NrFriends);
          
             return Page();
         }
 
-        public OverviewModel(IAddressesService addressesService, IAdminService adminService)
+        public OverviewModel(IAdminService adminService)
         {
-            _addressesService = addressesService;
             _adminService = adminService;
+            
         }
     }
 }
