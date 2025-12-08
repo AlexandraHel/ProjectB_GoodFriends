@@ -19,8 +19,8 @@
             <div class="col d-flex align-items-start">
               <svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em"><use xlink:href="#globe-europe-africa"/></svg>
               <div>
-                <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">@item.Country</h3>
-                <p>@item.NrFriends friends</p>
+                <h3 class="fw-bold mb-1 fs-3 text-body-emphasis">@item.Country</h3>
+                <p class="fs-5 mb-2">@item.NrFriends friends</p>
                 <a href="~/Friends/OverviewCity?country=@item.Country" class="btn btn-primary">
                   See details by city
                 </a> 
@@ -31,10 +31,10 @@
           @if (Model.FriendsWithoutCountry > 0) 
           {
             <div class="col d-flex align-items-start">
-              <svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em"><use xlink:href="#boombox"/></svg>
+              <svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em"><use xlink:href="#globe-europe-africa"/></svg>
               <div>
-                <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">No address</h3>
-                <p>@Model.FriendsWithoutCountry friends</p>
+                <h3 class="fw-bold mb-1 fs-3 text-body-emphasis">No address</h3>
+                <p class="fs-5 mb-2">@Model.FriendsWithoutCountry friends</p>
               </div>
             </div>
           }

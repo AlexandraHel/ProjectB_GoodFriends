@@ -19,12 +19,12 @@
             <div class="col d-flex align-items-start">
               <svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em"><use xlink:href="#buildings"/></svg>
               <div>
-                <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">@item.City</h3>
-                <p>@item.NrFriends friends</p>
+                <h3 class="fw-bold mb-0 fs-3 text-body-emphasis">@item.City</h3>
+                <p class="fs-4 mb-0">@item.NrFriends friends</p>
               
-                @if(Model.PetsInfo?.FirstOrDefault(p => p.City == item.City)?.NrPets != null)  {<p> @Model.PetsInfo.FirstOrDefault(p => p.City == item.City)?.NrPets pets</p> }
+                @if(Model.PetsInfo?.FirstOrDefault(p => p.City == item.City)?.NrPets != null)  {<p class="fs-4 mb-0"> @Model.PetsInfo.FirstOrDefault(p => p.City == item.City)?.NrPets pets</p> }
                 else{
-                  <p>0 pets</p>
+                  <p class="fs-4 mb-0">0 pets</p>
                 }
               </div>
             </div>   

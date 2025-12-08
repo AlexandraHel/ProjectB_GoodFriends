@@ -8,9 +8,9 @@ namespace AppRazor.Pages
 {
     public class ListOfFriendsModel : PageModel
     {
-        readonly IAdminService _service = null;
+        //readonly IAdminService _service = null;
         readonly IFriendsService _friendsService = null;
-        readonly ILogger<ListOfFriendsModel> _logger = null;
+        //readonly ILogger<ListOfFriendsModel> _logger = null;
 
         [BindProperty]
         public bool UseSeeds { get; set; } = true;
@@ -81,10 +81,9 @@ namespace AppRazor.Pages
             return Page();
         }
 
-        public ListOfFriendsModel(IFriendsService friendsService, ILogger<ListOfFriendsModel> logger)
+        public ListOfFriendsModel(IFriendsService friendsService)
         {
             _friendsService = friendsService;
-            _logger = logger;
         }
     }
 }
