@@ -1,10 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Services.Interfaces;
-using Models.Interfaces; 
-using global::Models.DTO;
-using System.Collections.Generic;
-using Models;
+using Models.DTO;
 
 namespace AppRazor.Pages.Friends
 {

@@ -19,7 +19,7 @@ public class ViewFriendModel: PageModel
     public IFriend Friend { get; set; }
 
         public async Task<IActionResult> OnGet(string id)
-    {
+        {
             Guid _friendId = Guid.Parse(id);
             var response = await _friendsService.ReadFriendAsync(_friendId, false);
             Friend = response.Item;
@@ -29,7 +29,8 @@ public class ViewFriendModel: PageModel
                 Address = Friend.Address;
 
             return Page();
-    }
+        }
+
 
     public ViewFriendModel(IFriendsService friendsService)
     {
