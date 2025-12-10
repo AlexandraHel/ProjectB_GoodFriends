@@ -11,6 +11,7 @@ namespace DbModels;
 [Table("Pets", Schema = "supusr")]
 sealed public class PetDbM : Pet, ISeed<PetDbM>
 {
+    SeedGenerator seedGenerator = new SeedGenerator();
     [Key]    
     public override Guid PetId { get; set; }
 
@@ -54,9 +55,11 @@ sealed public class PetDbM : Pet, ISeed<PetDbM>
     {
         if (org == null) return null;
 
-        Kind = org.Kind;
-        Mood = org.Mood;
         Name = org.Name;
+        Kind = seedGenerator.FromEnum<AnimalKind>();
+        Mood = seedGenerator.FromEnum<AnimalMood>();
+        Seeded = false;
+        
 
         return this;
     }

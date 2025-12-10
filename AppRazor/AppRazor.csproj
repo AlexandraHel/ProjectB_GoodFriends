@@ -6,6 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'https' " />
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'http' " />
+
   <ItemGroup>
     <ProjectReference Include="..\Configuration\Configuration.csproj">
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
@@ -23,6 +27,27 @@
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>
   </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="wwwroot\" />
+    <None Remove="Pages\" />
+    <None Remove="SeidoHelpers\" />
+    <None Remove="TempMail\" />
+    <None Remove="Pages\Account\" />
+    <None Remove="Pages\Members\" />
+    <None Remove="ModelAuthorization\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+    <Folder Include="Pages\" />
+    <Folder Include="SeidoHelpers\" />
+    <Folder Include="TempMail\" />
+    <Folder Include="Pages\Account\" />
+    <Folder Include="Pages\Members\" />
+    <Folder Include="ModelAuthorization\" />
+  </ItemGroup>
+  
 
    <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="9.0.0" />

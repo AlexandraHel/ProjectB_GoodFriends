@@ -2,10 +2,12 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 //using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using AppRazor.SeidoHelpers;
 using Services.Interfaces;
 using Models.Interfaces;
 using Models.DTO;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Models;
 
 namespace AppRazor.Pages.Friends;
 
@@ -30,6 +32,11 @@ public class EditFriendModel: PageModel
         [BindProperty]
         public FriendIM FriendInput { get; set; }
 
+        //[BindProperty]
+        //public PetIM PetIM { get; set; }
+
+         public SeidoHelpers.ModelValidationResult ValidationResult { get; set; } = new SeidoHelpers.ModelValidationResult(false, null, null);
+
           //I also use BindProperty to keep between several posts, bound to hidden <input> field
         //[BindProperty]
         //public string PageHeader { get; set; } //Behövs denna?
@@ -43,9 +50,11 @@ public class EditFriendModel: PageModel
         _quotesService = quotesService;
         }
 
-        public async Task<IActionResult> OnGet(string id)
+        public async Task<IActionResult> OnGet()
         {
-            Guid _friendId = Guid.Parse(id);
+            StatusIM statusIM;
+            Guid _friendId = Guid.Parse(Request.Query["id"]);
+            
             var response = await _friendsService.ReadFriendAsync(_friendId, false);
             FriendInput = new FriendIM(response.Item);
             /*Friend = response.Item;
@@ -56,10 +65,14 @@ public class EditFriendModel: PageModel
 
             return Page();
         }
-            public IActionResult OnPostDeletePet(Guid petId)
-        {
-            //Set the Artist as deleted, it will not be rendered
-            FriendInput.Pets.First(a => a.PetId == petId).StatusIM = StatusIM.Deleted;
+
+    public IActionResult OnPostDeletePet(Guid petId)
+    {
+            var pet = FriendInput.Pets.FirstOrDefault(a => a.PetId == petId);
+            if (pet != null)
+            {
+                pet.StatusIM = StatusIM.Deleted;
+            }
 
             return Page();
         }
@@ -73,13 +86,25 @@ public class EditFriendModel: PageModel
 
         public IActionResult OnPostAddPet()
         {
+            //Ta bort knappar om detta inte ska användas
+        
+            string[] keys = { "FriendInput.NewPet.Name"};
+
+            if (!ModelState.IsValidPartially(out SeidoHelpers.ModelValidationResult validationResult, keys))
+            {
+                ValidationResult = validationResult;
+                return Page();
+            }
+            //ModelState.Remove("FriendInput.NewQuote.QuoteText");
+            //ModelState.Remove("FriendInput.NewQuote.Author");
+            
             if (ModelState.IsValid)
             {
                 //Add new PetIM to the FriendInput.Pets list
                 var newPetIM = new PetIM()
                 {
                     StatusIM = StatusIM.Unchanged,
-                    PetId = Guid.NewGuid(), //Temporary Guid, will be replaced when saved to database
+                    PetId = Guid.NewGuid(),
                     Name = FriendInput.NewPet.Name
                 };
                 FriendInput.Pets.Add(newPetIM);
@@ -92,6 +117,17 @@ public class EditFriendModel: PageModel
         }
         public IActionResult OnPostAddQuote()
         {
+            // Only validate NewQuote, not other fields like NewPet
+            ModelState.Remove("FriendInput.NewPet.Name");
+            
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .Select(x => new { x.Key, x.Value.Errors })
+                    .ToArray();
+                // Set breakpoint here or log errors
+            }
             if (ModelState.IsValid)
             {
                 //Add new QuoteIM to the FriendInput.Quotes list
@@ -132,7 +168,56 @@ public class EditFriendModel: PageModel
 
         public async Task<IActionResult> OnPostSave()
         {
-            if (ModelState.IsValid)
+            string[] keys = { "FriendInput.FirstName",
+                              "FriendInput.LastName"};
+            if (!ModelState.IsValidPartially(out SeidoHelpers.ModelValidationResult validationResult, keys))
+            {
+                ValidationResult = validationResult;
+                return Page();
+            }
+            var resp = await _friendsService.ReadFriendAsync(FriendInput.FriendId, false);
+            var friendToUpdate = resp.Item;
+            //await SavePets();
+            //await SaveQuotes();
+
+               //Update the friend with the values from the InputModel
+            friendToUpdate = FriendInput.UpdateModel(friendToUpdate);
+            var friendToUpdateDto = new FriendCuDto(friendToUpdate);
+                //Save the updated friend to database
+            await _friendsService.UpdateFriendAsync(friendToUpdateDto);
+
+                        //Handle Pets
+             foreach (var petIM in FriendInput.Pets)
+                {
+                    if (petIM.StatusIM == StatusIM.Deleted)
+                    {
+                        await _petsService.DeletePetAsync(petIM.PetId);
+                    }
+                }
+
+                //Handle Quotes
+                foreach (var quoteIM in FriendInput.Quotes)
+                {
+                    if (quoteIM.StatusIM == StatusIM.Deleted)
+                    {
+                        await _quotesService.DeleteQuoteAsync(quoteIM.QuoteId);
+                    }
+                }
+
+               return Redirect($"~/Friends/ListOfFriends");
+            
+/*
+            var friend = FriendInput.UpdateModel(friend);
+            await _mg_service.UpdateMusicGroupAsync(new MusicGroupCUdto(mg));
+
+            if (MusicGroupInput.StatusIM == StatusIM.Inserted)
+            {
+                return Redirect($"~/ListOfGroups");
+            }
+
+            return Redirect($"~/ViewFriend?id={FriendInput.FriendId}");*/
+            
+           /* if (ModelState.IsValid)
             {
                 //Read the existing friend from database
                 var resp = await _friendsService.ReadFriendAsync(FriendInput.FriendId, false);
@@ -140,9 +225,9 @@ public class EditFriendModel: PageModel
 
                 //Update the friend with the values from the InputModel
                 friendToUpdate = FriendInput.UpdateModel(friendToUpdate);
-
+                var friendToUpdateDto = new FriendCuDto(friendToUpdate);
                 //Save the updated friend to database
-                await _friendsService.UpdateFriendAsync(friendToUpdate);
+                await _friendsService.UpdateFriendAsync(friendToUpdateDto);
 
                 //Handle Pets
                 foreach (var petIM in FriendInput.Pets)
@@ -164,7 +249,7 @@ public class EditFriendModel: PageModel
 
                return Redirect($"~/Friends/Overview");
             }
-            return Page();
+            return Page();*/
         }
 
                public async Task<IActionResult> OnPostUndo()
@@ -190,10 +275,10 @@ public class EditFriendModel: PageModel
             [Required(ErrorMessage = "Your friend must have a lastname")]
             public string LastName { get; set; }
 
-            public int StreetAddress { get; set; }
-            public int ZipCode { get; set; }
-            public string City { get; set; }
-            public string Country { get; set; } // Ska andra länder tillåtas? Selectlist?
+            public string StreetAddress { get; set; } = "" ;
+            public int ZipCode { get; set; } = 0;
+            public string City { get; set; } = "" ;
+            public string Country { get; set; } = "" ; // Ska andra länder tillåtas? Selectlist?
 
             /*Made nullable (and required) to force user to make an active selection when creating new group
             public MusicGenre? Genre { get; set; }*/
@@ -208,13 +293,13 @@ public class EditFriendModel: PageModel
                 FriendId = model.FriendId;
                 FirstName = model.FirstName;
                 LastName = model.LastName;
-                StreetAddress = model.StreetAddress;
-                ZipCode = model.ZipCode;
-                City = model.City;
-                Country = model.Country;
+                StreetAddress = model.Address?.StreetAddress ?? "";
+                ZipCode = model.Address?.ZipCode ?? 0;
+                City = model.Address?.City ?? "";
+                Country = model.Address?.Country ?? "";
 
-                Pets = model.Pets?.Select(m => new PetIM(m)).ToList();
-                Quotes = model.Quotes?.Select(m => new QuoteIM(m)).ToList();
+                Pets = model.Pets?.Select(m => new PetIM(m)).ToList() ?? new List<PetIM>();
+                Quotes = model.Quotes?.Select(m => new QuoteIM(m)).ToList() ?? new List<QuoteIM>();
             }
 
             //to update the model in database
@@ -222,16 +307,20 @@ public class EditFriendModel: PageModel
             {
                 model.FirstName = this.FirstName;
                 model.LastName = this.LastName;
-                model.StreetAddress = this.StreetAddress;
-                model.ZipCode = this.ZipCode;
-                model.City = this.City;
-                model.Country = this.Country;
+
+                if (model.Address != null)
+                {
+                    model.Address.StreetAddress = this.StreetAddress;
+                    model.Address.ZipCode = this.ZipCode;
+                    model.Address.City = this.City;
+                    model.Address.Country = this.Country;
+                }
+
                 return model;
             }
 
             public PetIM NewPet { get; set; } = new PetIM();
             public QuoteIM NewQuote { get; set; } = new QuoteIM();
-
 
         }
 
@@ -264,7 +353,6 @@ public class EditFriendModel: PageModel
                 return model;
             }
 
-            //to create new artist in the database
             public PetCuDto CreateCUdto () => new PetCuDto(){
 
                 PetId = null,
