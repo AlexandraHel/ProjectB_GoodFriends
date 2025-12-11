@@ -32,6 +32,7 @@ public class EditFriendModel: PageModel
         [BindProperty]
         public FriendIM FriendInput { get; set; }
 
+//ny input model för ny vän? pet? quote?
         //[BindProperty]
         //public PetIM PetIM { get; set; }
 
@@ -181,13 +182,13 @@ public class EditFriendModel: PageModel
             //await SaveQuotes();
 
                //Update the friend with the values from the InputModel
-            friendToUpdate = FriendInput.UpdateModel(friendToUpdate);
-            var friendToUpdateDto = new FriendCuDto(friendToUpdate);
+                friendToUpdate = FriendInput.UpdateModel(friendToUpdate);
+                var friendToUpdateDto = new FriendCuDto(friendToUpdate);
                 //Save the updated friend to database
-            await _friendsService.UpdateFriendAsync(friendToUpdateDto);
+                await _friendsService.UpdateFriendAsync(friendToUpdateDto);
 
-                        //Handle Pets
-             foreach (var petIM in FriendInput.Pets)
+                    //Handle Pets
+                foreach (var petIM in FriendInput.Pets)
                 {
                     if (petIM.StatusIM == StatusIM.Deleted)
                     {
@@ -275,24 +276,26 @@ public class EditFriendModel: PageModel
             [Required(ErrorMessage = "Your friend must have a lastname")]
             public string LastName { get; set; }
 
+            [Required(ErrorMessage = "Your friend must have an email")]
+            public string Email { get; set; }
+            public DateTime Birthday { get; set; }
             public string StreetAddress { get; set; } = "" ;
             public int ZipCode { get; set; } = 0;
             public string City { get; set; } = "" ;
             public string Country { get; set; } = "" ; // Ska andra länder tillåtas? Selectlist?
 
-            /*Made nullable (and required) to force user to make an active selection when creating new group
-            public MusicGenre? Genre { get; set; }*/
-
             public List<PetIM> Pets { get; set; } = new List<PetIM>();
             public List<QuoteIM> Quotes { get; set; } = new List<QuoteIM>();
 
             public FriendIM() {}
-            public FriendIM(IFriend model)  // Ska inte kunna skapa en ny friend så den behövs nog inte
+            public FriendIM(IFriend model) 
             {
                 StatusIM = StatusIM.Unchanged;
                 FriendId = model.FriendId;
                 FirstName = model.FirstName;
                 LastName = model.LastName;
+                Email = model.Email;
+                Birthday = model.Birthday ?? DateTime.MinValue;
                 StreetAddress = model.Address?.StreetAddress ?? "";
                 ZipCode = model.Address?.ZipCode ?? 0;
                 City = model.Address?.City ?? "";
@@ -401,3 +404,31 @@ public class EditFriendModel: PageModel
         }
         #endregion
 }
+/*
+    <button type="button" class="btn btn-danger btn-sm m-1"
+                                    data-seido-selected-item-id="@Model.FriendInput.Quotes[k].QuoteId"
+                                    data-bs-toggle="modal" data-bs-target="#dangerDelQModal"
+
+                                    data-seido-modal-title ="Delete Quote"
+                                    data-seido-modal-body="@Model.FriendInput.Quotes[k].QuoteText is about to be deleted.">
+                                    Del
+                                </button>
+
+                                 <div class="modal fade" id="dangerDelQModal" tabindex="-1" aria-labelledby="softModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title text-danger" id="softModalLabel">Confirm deletion</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Quote will be deleted.
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" asp-page-handler="DeleteQuote"  data-seido-selected-item-id="@Model.FriendInput.Quotes[k].QuoteId" class="btn btn-primary btn-danger" data-bs-dismiss="modal">Ok</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div> */

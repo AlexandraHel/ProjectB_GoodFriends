@@ -24,22 +24,28 @@
                         <div class="col-md-2 ">
                             <button asp-page-handler="Search" class="btn btn-outline-success" type="submit">Search</button>
                         </div>-->
-                    <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    
+                    <p class="fw-bold">
                         Choose countries
-                    </a>
-                    <ul class="dropdown-menu">
-    
+                    </p>
+                   
                         <li class="d-flex align-items-center px-3 py-2">
-                            <input class="form-check-input me-2" type="checkbox" id="countryDenmark" />
+                            <input class="form-check-input ms-3 me-1" type="checkbox" id="countryDenmark" />
                             <label class="form-check-label" for="countryDenmark">Denmark</label>
+                            <input class="form-check-input ms-3 me-1" type="checkbox" id="countryFinland" />
+                            <label class="form-check-label" for="countryFinland">Finland</label>
+                            <input class="form-check-input ms-3 me-1" type="checkbox" id="countryNorway" />
+                            <label class="form-check-label" for="countryNorway">Norway</label>
+                            <input class="form-check-input ms-3 me-1" type="checkbox" id="countrySweden" />
+                            <label class="form-check-label" for="countrySweden">Sweden</label>
+                            <input class="form-check-input ms-3 me-1" type="checkbox" id="countryUnknown" />
+                            <label class="form-check-label" for="countryUnknown">Unknown</label>
                         </li>
                         
                         <!--<li><a asp-controller="Form" asp-action="InputModelSimple" class="nav-link">Finland</a></li>
                         <li class="nav-item"><a asp-controller="Form" asp-action="InputModelSimple" class="nav-link">Norway</a></li>
                         <li class="nav-item"><a asp-controller="Form" asp-action="InputModelSimple" class="nav-link">Sweden</a></li>-->
             
-                    </ul>
                 </li>
                     </div>
                 
@@ -64,19 +70,15 @@
                                     </a>
                                 </div>
                                     <div class="col-md-2 themed-grid-col">
-                                        <a href="~/Members/EditFriend?id=@item.FriendId" class="btn btn-secondary btn-sm m-1" type="button">Edit</a>
-                                        <!-- Button to trigger modal confirmation with modal in the form tag -->
-                                        <!--<button type="button" class="btn btn-danger btn-sm m-1" data-bs-toggle="modal" data-bs-target="#delModal"
-                                                data-seido-modal-body="@item.FirstName @item.LastName is about to be deleted."
-                                                data-seido-selected-item-id="@item.FriendId">
-                                            Del
-                                        </button>-->
+                                        <a href="~/Friends/EditFriend?id=@item.FriendId" class="btn btn-secondary btn-sm m-1" type="button">
+                                        Edit
+                                        </a>
                                     </div>
                             }
                             <nav aria-label="Standard pagination example">
                                 <ul class="pagination">
                                     <li class="page-item">
-                                        <a class="page-link" href="~/ListOfGroups?pagenr=@Model.PrevPageNr&search=@Model.CountryFilter" aria-label="Previous">
+                                        <a class="page-link" href="~Friends/ListOfFriends?pagenr=@Model.PrevPageNr&search=@Model.CountryFilter" aria-label="Previous">
                                             <span aria-hidden="true">&laquo;</span>
                                         </a>
                                     </li>

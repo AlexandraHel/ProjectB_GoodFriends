@@ -26,6 +26,16 @@
                         <label for="genre" class="form-label">Last Name</label>
                         <input type="text" class="form-control" id="genre" value="@Model.Friend.LastName" readonly>
                     </div>
+
+                    <div class="col-sm-6">
+                        <label for="groupName" class="form-label">Email</label>
+                        <input type="text" class="form-control" id="groupName" value="@Model.Friend.Email" readonly>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <label for="genre" class="form-label">Birthday</label>
+                        <input type="text" class="form-control" id="genre" value="@(Model.Friend.Birthday?.ToString("yyyy-MM-dd") ?? "Unknown")" readonly>
+                    </div>
                          <div class="col-sm-6">
                         <label for="groupName" class="form-label">StreetAddress</label>
                         <input type="text" class="form-control" id="groupName" value="@(Model.Friend.Address?.StreetAddress ?? "No Address")" readonly>

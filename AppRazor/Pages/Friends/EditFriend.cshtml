@@ -38,6 +38,18 @@
                         <span asp-validation-for="FriendInput.LastName" class="invalid-feedback"></span>
                     </div>
 
+                     <div class="col-sm-6">
+                        <label for="firstName" class="form-label">Email</label>
+                        <input type="text" class="form-control" id="firstName" asp-for="FriendInput.Email">
+                        <span asp-validation-for="FriendInput.Email" class="invalid-feedback"></span>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <label for="lastName" class="form-label">Birthday</label>
+                        <input type="text" class="form-control" id="lastName" asp-for="FriendInput.Birthday">
+                        <span asp-validation-for="FriendInput.Birthday" class="invalid-feedback"></span>
+                    </div>
+
                     <div class ="col-sm-6">
                         <label for = "streetAddres class="form-label">StreetAddress</label>
                         <input type="text" class="form-control" id="streetAddress" asp-for="FriendInput.StreetAddress">
@@ -68,12 +80,8 @@
                         <input type="hidden" name="petId" data-seido-selected-item-id-target />
 
                         <div class="row mb-2 text-center">
-                            <div class="col-md-10 themed-grid-head-col">PetName</div>
-                              <div class="col-md-2 themed-grid-head-col">
-                                <button class="btn btn-success btn-sm m-1" type="button"
-                                    data-bs-toggle="collapse" data-bs-target="#collapseAddPet">
-                                    New
-                                </button>
+                            <div class="col-md-12 themed-grid-head-col">
+                            PetName
                             </div>
                         </div>
 
@@ -109,7 +117,7 @@
 
                                 <button type="button" class="btn btn-danger btn-sm m-1"
                                     data-seido-selected-item-id="@Model.FriendInput.Pets[k].PetId"
-                                    data-bs-toggle="modal" data-bs-target="#dangerDelQModal"
+                                    data-bs-toggle="modal" data-bs-target="#dangerDelPModal"
 
                                     data-seido-modal-title ="Delete Pet"
                                     data-seido-modal-body="@Model.FriendInput.Pets[k].Name is about to be deleted.">
@@ -118,7 +126,7 @@
                                     Del
                                 </button>
 
-                                 <div class="modal fade" id="dangerDelQModal" tabindex="-1" aria-labelledby="softModalLabel" aria-hidden="true">
+                                 <div class="modal fade" id="dangerDelPModal" tabindex="-1" aria-labelledby="softModalLabel" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
@@ -128,13 +136,13 @@
                                             <div class="modal-body">
                                                 Pet will be deleted.
                                             </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                            <button type="submit" asp-page-handler="DeletePet"  data-seido-selected-item-id="@Model.FriendInput.Pets[k].PetId" class="btn btn-primary btn-danger" data-bs-dismiss="modal">Ok</button>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" asp-page-handler="DeletePet"  data-seido-selected-item-id="@Model.FriendInput.Pets[k].PetId" class="btn btn-primary btn-danger" data-bs-dismiss="modal">Ok</button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
                             </div>
                         </div>
 
@@ -159,17 +167,12 @@
                 </div>
 
                 <div class="row g-1">
-                 <input type="hidden" name="quotesId" data-seido-selected-item-id-target />
                     <h3 class="pb-2">Quotes</h3>
+                    <input type="hidden" name="quoteId" data-seido-selected-item-id-target />
                     <div class="row mb-2 text-center">
                         <div class="col-md-8 themed-grid-head-col">Text</div>
                         <div class="col-md-2 themed-grid-head-col">Author</div>
-                            <div class="col-md-2 themed-grid-head-col">
-                                <button class="btn btn-success btn-sm m-1" type="button"
-                                    data-bs-toggle="collapse" data-bs-target="#collapseAddQuote">
-                                New
-                                </button>
-                            </div>
+                        <div class="col-md-2 themed-grid-head-col">Delete</div>
                     </div>
                      <div class="collapse row mb-2 text-center" id="collapseAddQuote">
                         <div class="col-md-8 themed-grid-col">
@@ -205,10 +208,31 @@
                                         data-seido-selected-item-id="@Model.FriendInput.Quotes[k].QuoteId">
                                     Edit
                                 </button>
-                                <!-- Button trigger post DeleteQuote -->
-                                <button type="submit" asp-page-handler="DeleteQuote" name="quoteId" value="@Model.FriendInput.Quotes[k].QuoteId" class="btn btn-danger btn-sm m-1">
+                               <button type="button" class="btn btn-danger btn-sm m-1"
+                                    data-seido-selected-item-id="@Model.FriendInput.Quotes[k].QuoteId"
+                                    data-bs-toggle="modal" data-bs-target="#dangerDelQModal"
+
+                                    data-seido-modal-title ="Delete Quote"
+                                    data-seido-modal-body="@Model.FriendInput.Quotes[k].QuoteText is about to be deleted.">
                                     Del
                                 </button>
+                                       <div class="modal fade" id="dangerDelQModal" tabindex="-1" aria-labelledby="softModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title text-danger" id="softModalLabel">Confirm deletion</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                               Quote will be deleted.
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" asp-page-handler="DeleteQuote"  data-seido-selected-item-id="@Model.FriendInput.Quotes[k].QuoteId" class="btn btn-primary btn-danger" data-bs-dismiss="modal">Ok</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -222,7 +246,7 @@
                                 <span asp-validation-for="FriendInput.Quotes[k].Author" class="invalid-feedback"></span>
                             </div>
                             <div class="col-md-2 themed-grid-col">
-                                <button type="submit" asp-page-handler="EditQuote" class="btn btn-success btn-sm m-1">
+                                <button type="submit" asp-page-handler="EditQuote" asp-route-quoteId="@Model.FriendInput.Quotes[k].QuoteId" class="btn btn-success btn-sm m-1">
                                     Ok
                                 </button>
             </div>
