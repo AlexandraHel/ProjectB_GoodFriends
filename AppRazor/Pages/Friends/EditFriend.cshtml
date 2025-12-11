@@ -19,6 +19,17 @@
                 <svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em"><use xlink:href="#undo" /></svg>
             </button>
     </h2>
+        @if (Model.ValidationResult.HasErrors)
+        {
+            <div class="row g-3">
+                @foreach (var item in Model.ValidationResult.ErrorMsgs)
+                {
+                    <span class="alert alert-danger" role="alert">
+                        @item
+                    </span>
+                }
+            </div>
+        }
         <div class="row row-cols-1 row-cols-lg-4 align-items-stretch g-4 py-5">
             <div class="col-md-7 col-lg-10">
           
@@ -39,40 +50,40 @@
                     </div>
 
                      <div class="col-sm-6">
-                        <label for="firstName" class="form-label">Email</label>
-                        <input type="text" class="form-control" id="firstName" asp-for="FriendInput.Email">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" asp-for="FriendInput.Email">
                         <span asp-validation-for="FriendInput.Email" class="invalid-feedback"></span>
                     </div>
 
                     <div class="col-sm-6">
-                        <label for="lastName" class="form-label">Birthday</label>
-                        <input type="text" class="form-control" id="lastName" asp-for="FriendInput.Birthday">
-                        <span asp-validation-for="FriendInput.Birthday" class="invalid-feedback"></span>
+                        <label for="birthday" class="form-label">Birthday</label>
+                        <input type="date" class="form-control" id="birthday" asp-for="FriendInput.Birthday">
+                    <!--Ska inte vara validation?  <span asp-validation-for="FriendInput.Birthday" class="invalid-feedback"></span>--> 
                     </div>
 
-                    <div class ="col-sm-6">
-                        <label for = "streetAddres class="form-label">StreetAddress</label>
+                    <div class="col-sm-6">
+                        <label for="streetAddress" class="form-label">Street Address</label>
                         <input type="text" class="form-control" id="streetAddress" asp-for="FriendInput.StreetAddress">
-                        <span asp-validation-for="FriendInput.StreetAddress" class="invalid-feedback"></span>
+                       <!--<span asp-validation-for="FriendInput.StreetAddress" class="invalid-feedback"></span>-->
                     </div>
 
                     <div class="col-sm-6">
-                        <label for="genre" class="form-label">ZipCode</label>
+                        <label for="zipCode" class="form-label">Zip Code</label>
                         <input type="text" class="form-control" id="zipCode" asp-for="FriendInput.ZipCode">
-                        <span asp-validation-for="FriendInput.ZipCode" class="invalid-feedback"></span>
+                       <!--<span asp-validation-for="FriendInput.ZipCode" class="invalid-feedback"></span>-->
                     </div>
 
 
                     <div class="col-sm-6">
-                        <label for="genre" class="form-label">City</label>
+                        <label for="city" class="form-label">City</label>
                         <input type="text" class="form-control" id="city" asp-for="FriendInput.City">
-                        <span asp-validation-for="FriendInput.City" class="invalid-feedback"></span>
+                        <!--<span asp-validation-for="FriendInput.City" class="invalid-feedback"></span>-->
                     </div>
 
                     <div class="col-sm-6">
-                        <label for="genre" class="form-label">Country</label>
+                        <label for="country" class="form-label">Country</label>
                         <input type="text" class="form-control" id="country" asp-for="FriendInput.Country">
-                        <span asp-validation-for="FriendInput.Country" class="invalid-feedback"></span>
+                        <!--<span asp-validation-for="FriendInput.Country" class="invalid-feedback"></span>-->
                     </div>
 
                     <div class="row g-1">

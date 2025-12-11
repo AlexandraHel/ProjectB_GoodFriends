@@ -55,6 +55,7 @@ sealed public class FriendDbM : csFriend, ISeed<FriendDbM>
     {
         FirstName = org.FirstName;
         LastName = org.LastName;
+        Email = org.Email;
         Birthday = org.Birthday;
 
         return this;

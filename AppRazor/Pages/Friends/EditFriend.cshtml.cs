@@ -8,6 +8,7 @@ using Models.Interfaces;
 using Models.DTO;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Models;
+using System.Net.WebSockets;
 
 namespace AppRazor.Pages.Friends;
 
@@ -36,13 +37,10 @@ public class EditFriendModel: PageModel
         //[BindProperty]
         //public PetIM PetIM { get; set; }
 
-         public SeidoHelpers.ModelValidationResult ValidationResult { get; set; } = new SeidoHelpers.ModelValidationResult(false, null, null);
-
           //I also use BindProperty to keep between several posts, bound to hidden <input> field
         //[BindProperty]
         //public string PageHeader { get; set; } //Behövs denna?
-        //public ModelValidationResult ValidationResult { get; set; } = new ModelValidationResult(false, null, null);
-
+               
         public EditFriendModel(IFriendsService friendsService, IAddressesService addressesService, IPetsService petsService, IQuotesService quotesService)
         {
         _friendsService = friendsService;
@@ -50,7 +48,8 @@ public class EditFriendModel: PageModel
         _petsService = petsService;
         _quotesService = quotesService;
         }
-
+        
+        public SeidoHelpers.ModelValidationResult ValidationResult { get; set; } = new SeidoHelpers.ModelValidationResult(false, null, null);
         public async Task<IActionResult> OnGet()
         {
             StatusIM statusIM;
@@ -170,7 +169,8 @@ public class EditFriendModel: PageModel
         public async Task<IActionResult> OnPostSave()
         {
             string[] keys = { "FriendInput.FirstName",
-                              "FriendInput.LastName"};
+                              "FriendInput.LastName", 
+                              "FriendInput.Email"};
             if (!ModelState.IsValidPartially(out SeidoHelpers.ModelValidationResult validationResult, keys))
             {
                 ValidationResult = validationResult;
@@ -253,7 +253,7 @@ public class EditFriendModel: PageModel
             return Page();*/
         }
 
-               public async Task<IActionResult> OnPostUndo()
+        public async Task<IActionResult> OnPostUndo()
         {
             //Reload Music group from Database
             var friend = await _friendsService.ReadFriendAsync(FriendInput.FriendId, false);
@@ -262,6 +262,7 @@ public class EditFriendModel: PageModel
             FriendInput = new FriendIM(friend.Item);
             return Page();
         }
+
         #region Input Models
         public enum StatusIM { Unknown, Unchanged, Modified, Deleted}
         public class FriendIM
@@ -278,7 +279,7 @@ public class EditFriendModel: PageModel
 
             [Required(ErrorMessage = "Your friend must have an email")]
             public string Email { get; set; }
-            public DateTime Birthday { get; set; }
+            public DateTime? Birthday { get; set; }
             public string StreetAddress { get; set; } = "" ;
             public int ZipCode { get; set; } = 0;
             public string City { get; set; } = "" ;
@@ -295,7 +296,7 @@ public class EditFriendModel: PageModel
                 FirstName = model.FirstName;
                 LastName = model.LastName;
                 Email = model.Email;
-                Birthday = model.Birthday ?? DateTime.MinValue;
+                Birthday = model.Birthday;
                 StreetAddress = model.Address?.StreetAddress ?? "";
                 ZipCode = model.Address?.ZipCode ?? 0;
                 City = model.Address?.City ?? "";
@@ -310,6 +311,8 @@ public class EditFriendModel: PageModel
             {
                 model.FirstName = this.FirstName;
                 model.LastName = this.LastName;
+                model.Email = this.Email;
+                model.Birthday = this.Birthday;
 
                 if (model.Address != null)
                 {
