@@ -91,9 +91,15 @@
                         <input type="hidden" name="petId" data-seido-selected-item-id-target />
 
                         <div class="row mb-2 text-center">
-                            <div class="col-md-12 themed-grid-head-col">
+                            <div class="col-md-10 themed-grid-head-col">
                             PetName
                             </div>
+                                <div class="col-md-2 themed-grid-head-col">
+                        <button class="btn btn-success btn-sm m-1" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#collapseAddPet">
+                            New
+                        </button>
+                    </div>
                         </div>
 
                       <div class="collapse row mb-2 text-center" id="collapseAddPet">
@@ -105,7 +111,7 @@
     
                         <div class="col-md-2 themed-grid-col">
                             <button type="submit" asp-page-handler="AddPet" class="btn btn-success btn-sm m-1">
-                                Ok
+                                Save
                             </button>
                         </div>
                     </div>
@@ -131,9 +137,9 @@
                                     data-bs-toggle="modal" data-bs-target="#dangerDelPModal"
 
                                     data-seido-modal-title ="Delete Pet"
-                                    data-seido-modal-body="@Model.FriendInput.Pets[k].Name is about to be deleted.">
-                                   <!-- data-seido-modal-cancel="No"
-                                    data-seido-modal-Ok="Delete" > -->
+                                    data-seido-modal-body="@Model.FriendInput.Pets[k].Name is about to be deleted."
+                                    data-seido-modal-cancel="No"
+                                    data-seido-modal-Ok="Delete" >
                                     Del
                                 </button>
 

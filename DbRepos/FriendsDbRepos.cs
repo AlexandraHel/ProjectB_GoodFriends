@@ -25,8 +25,6 @@ public class FriendsDbRepos
         IFriend item;
         if (!flat)
         {
-            //make sure the model is fully populated, try without include.
-            //remove tracking for all read operations for performance and to avoid recursion/circular access
             var query = _dbContext.Friends.AsNoTracking()
                 .Include(i => i.AddressDbM)
                 .Include(i => i.PetsDbM)
@@ -37,8 +35,6 @@ public class FriendsDbRepos
         }
         else
         {
-            //Not fully populated, compare the SQL Statements generated
-            //remove tracking for all read operations for performance and to avoid recursion/circular access
             var query = _dbContext.Friends.AsNoTracking()
                 .Where(i => i.FriendId == id);
 
@@ -78,7 +74,6 @@ public class FriendsDbRepos
 #endif
             DbItemsCount = await query
 
-            //Adding filter functionality on Country
             .Where(i => i.Seeded == seeded &&
                         (string.IsNullOrEmpty(filter) || 
                          (filter.ToLower().Contains("unknown") && (i.AddressDbM == null || string.IsNullOrEmpty(i.AddressDbM.Country))) ||
@@ -86,13 +81,11 @@ public class FriendsDbRepos
 
             PageItems = await query
 
-            //Adding filter functionality on Country
             .Where(i => i.Seeded == seeded &&
                         (string.IsNullOrEmpty(filter) || 
                          (filter.ToLower().Contains("unknown") && (i.AddressDbM == null || string.IsNullOrEmpty(i.AddressDbM.Country))) ||
                          (i.AddressDbM != null && !string.IsNullOrEmpty(i.AddressDbM.Country) && filter.ToLower().Contains(i.AddressDbM.Country.ToLower()))))
 
-            //Adding paging
             .Skip(pageNumber * pageSize)
             .Take(pageSize)
 
@@ -106,18 +99,14 @@ public class FriendsDbRepos
 
     public async Task<ResponseItemDto<IFriend>> DeleteFriendAsync(Guid id)
     {
-        //Find the instance with matching id
         var query1 = _dbContext.Friends
             .Where(i => i.FriendId == id);
         var item = await query1.FirstOrDefaultAsync<FriendDbM>();
 
-        //If the item does not exists
         if (item == null) throw new ArgumentException($"Item {id} is not existing");
 
-        //delete in the database model
         _dbContext.Friends.Remove(item);
 
-        //write to database in a UoW
         await _dbContext.SaveChangesAsync();
         return new ResponseItemDto<IFriend>()
         {
@@ -130,7 +119,6 @@ public class FriendsDbRepos
 
     public async Task<ResponseItemDto<IFriend>> UpdateFriendAsync(FriendCuDto itemDto)
     {
-        //Find the instance with matching id and read the navigation properties.
         var query1 = _dbContext.Friends
             .Where(i => i.FriendId == itemDto.FriendId);
         var item = await query1
@@ -139,23 +127,18 @@ public class FriendsDbRepos
             .Include(i => i.QuotesDbM)
             .FirstOrDefaultAsync<FriendDbM>();
 
-        //If the item does not exists
+ 
         if (item == null) throw new ArgumentException($"Item {itemDto.FriendId} is not existing");
 
-        //transfer any changes from DTO to database objects
-        //Update individual properties
+ 
         item.UpdateFromDTO(itemDto);
 
-        //Update navigation properties
         await navProp_FriendCUdto_to_FriendDbM(itemDto, item);
 
-        //write to database model
         _dbContext.Friends.Update(item);
 
-        //write to database in a UoW
         await _dbContext.SaveChangesAsync();
 
-        //return the updated item in non-flat mode
         return await ReadFriendAsync(item.FriendId, false);
     }
 
@@ -164,32 +147,24 @@ public class FriendsDbRepos
         if (itemDto.FriendId != null)
             throw new ArgumentException($"{nameof(itemDto.FriendId)} must be null when creating a new object");
 
-        //transfer any changes from DTO to database objects
-        //Update individual properties Friend
+
         var item = new FriendDbM(itemDto);
 
-        //Update navigation properties
         await navProp_FriendCUdto_to_FriendDbM(itemDto, item);
 
-        //write to database model
         _dbContext.Friends.Add(item);
 
-        //write to database in a UoW
         await _dbContext.SaveChangesAsync();
 
-        //return the updated item in non-flat mode
         return await ReadFriendAsync(item.FriendId, false);
     }
 
-    //from all Guid relationships in _itemDtoSrc finds the corresponding object in the database and assigns it to _itemDst 
-    //as navigation properties. Error is thrown if no object is found corresponing to an id.
     private async Task navProp_FriendCUdto_to_FriendDbM(FriendCuDto itemDtoSrc, FriendDbM itemDst)
     {
-        //update AddressDbM from itemDto.AddressId
+ 
         itemDst.AddressDbM = (itemDtoSrc.AddressId != null) ? await _dbContext.Addresses.FirstOrDefaultAsync(
             a => (a.AddressId == itemDtoSrc.AddressId)) : null;
 
-        //update PetsDbM from itemDto.PetsId list
         List<PetDbM> pets = null;
         if (itemDtoSrc.PetsId != null)
         {
@@ -205,7 +180,6 @@ public class FriendsDbRepos
         }
         itemDst.PetsDbM = pets;
 
-        //update QuotesDbM from itemDto.QuotesId
         List<QuoteDbM> quotes = null;
         if (itemDtoSrc.QuotesId != null)
         {

@@ -33,6 +33,9 @@ public class EditFriendModel: PageModel
         [BindProperty]
         public FriendIM FriendInput { get; set; }
 
+        [BindProperty]
+        public PetIM NewPetIM { get; set; } = new PetIM();
+
 //ny input model för ny vän? pet? quote?
         //[BindProperty]
         //public PetIM PetIM { get; set; }
@@ -84,10 +87,12 @@ public class EditFriendModel: PageModel
             return Page();
         }
 
-        public IActionResult OnPostAddPet()
+        public async Task<IActionResult> OnPostAddPet()
         {
             //Ta bort knappar om detta inte ska användas
-        
+                 //ModelState.Remove("FriendInput.NewQuote.QuoteText");
+            //ModelState.Remove("FriendInput.NewQuote.Author");
+
             string[] keys = { "FriendInput.NewPet.Name"};
 
             if (!ModelState.IsValidPartially(out SeidoHelpers.ModelValidationResult validationResult, keys))
@@ -95,25 +100,22 @@ public class EditFriendModel: PageModel
                 ValidationResult = validationResult;
                 return Page();
             }
-            //ModelState.Remove("FriendInput.NewQuote.QuoteText");
-            //ModelState.Remove("FriendInput.NewQuote.Author");
-            
-            if (ModelState.IsValid)
+        
+            var petDto = new PetCuDto()
             {
-                //Add new PetIM to the FriendInput.Pets list
-                var newPetIM = new PetIM()
-                {
-                    StatusIM = StatusIM.Unchanged,
-                    PetId = Guid.NewGuid(),
-                    Name = FriendInput.NewPet.Name
-                };
-                FriendInput.Pets.Add(newPetIM);
-
-                //Clear the NewPet input model
-                FriendInput.NewPet = new PetIM();
-            }
+                PetId = null,
+                Name = FriendInput.NewPet.Name,
+                FriendId = FriendInput.FriendId
+            };
+            
+            await _petsService.CreatePetAsync(petDto);
+            
+            // Reload friend to get updated Pets list
+            var friend = await _friendsService.ReadFriendAsync(FriendInput.FriendId, false);
+            FriendInput = new FriendIM(friend.Item);
 
             return Page();
+
         }
         public IActionResult OnPostAddQuote()
         {
@@ -178,14 +180,15 @@ public class EditFriendModel: PageModel
             }
             var resp = await _friendsService.ReadFriendAsync(FriendInput.FriendId, false);
             var friendToUpdate = resp.Item;
-            //await SavePets();
-            //await SaveQuotes();
 
-               //Update the friend with the values from the InputModel
+                  //Update the friend with the values from the InputModel
                 friendToUpdate = FriendInput.UpdateModel(friendToUpdate);
                 var friendToUpdateDto = new FriendCuDto(friendToUpdate);
                 //Save the updated friend to database
                 await _friendsService.UpdateFriendAsync(friendToUpdateDto);
+         
+            //await SaveQuotes();
+
 
                     //Handle Pets
                 foreach (var petIM in FriendInput.Pets)
@@ -193,6 +196,14 @@ public class EditFriendModel: PageModel
                     if (petIM.StatusIM == StatusIM.Deleted)
                     {
                         await _petsService.DeletePetAsync(petIM.PetId);
+                    }
+                    else if (petIM.StatusIM == StatusIM.Modified)
+                    {
+                        var petResp = await _petsService.ReadPetAsync(petIM.PetId, false);
+                        var petToUpdate = petResp.Item;
+                        petToUpdate = petIM.UpdateModel(petToUpdate);
+                        var petToUpdateDto = new PetCuDto(petToUpdate);
+                        await _petsService.UpdatePetAsync(petToUpdateDto);
                     }
                 }
 
@@ -262,7 +273,7 @@ public class EditFriendModel: PageModel
         }
 
         #region Input Models
-        public enum StatusIM { Unknown, Unchanged, Modified, Deleted}
+        public enum StatusIM { Unknown, Unchanged, Inserted, Modified, Deleted}
         public class FriendIM
         {
             public StatusIM StatusIM { get; set; }
