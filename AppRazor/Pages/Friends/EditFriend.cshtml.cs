@@ -255,10 +255,8 @@ public class EditFriendModel: PageModel
 
         public async Task<IActionResult> OnPostUndo()
         {
-            //Reload Music group from Database
             var friend = await _friendsService.ReadFriendAsync(FriendInput.FriendId, false);
 
-            //Repopulate the InputModel
             FriendInput = new FriendIM(friend.Item);
             return Page();
         }
@@ -283,7 +281,7 @@ public class EditFriendModel: PageModel
             public string StreetAddress { get; set; } = "" ;
             public int ZipCode { get; set; } = 0;
             public string City { get; set; } = "" ;
-            public string Country { get; set; } = "" ; // Ska andra länder tillåtas? Selectlist?
+            public string Country { get; set; } = "" ; // Ska andra länder tillåtas? Selectlist/dropdown?
 
             public List<PetIM> Pets { get; set; } = new List<PetIM>();
             public List<QuoteIM> Quotes { get; set; } = new List<QuoteIM>();
@@ -306,7 +304,6 @@ public class EditFriendModel: PageModel
                 Quotes = model.Quotes?.Select(m => new QuoteIM(m)).ToList() ?? new List<QuoteIM>();
             }
 
-            //to update the model in database
             public IFriend UpdateModel(IFriend model)
             {
                 model.FirstName = this.FirstName;
@@ -359,8 +356,8 @@ public class EditFriendModel: PageModel
                 return model;
             }
 
-            public PetCuDto CreateCUdto () => new PetCuDto(){
-
+            public PetCuDto CreateCUdto () => new PetCuDto()
+            {
                 PetId = null,
                 Name = this.Name
             };
@@ -374,7 +371,7 @@ public class EditFriendModel: PageModel
             [Required(ErrorMessage = "Quote must have text")]
             public string QuoteText { get; set; }
 
-            [Required(ErrorMessage = "Quote must have author")]
+            [Required(ErrorMessage = "Quote must have an author")]
             public string Author { get; set; }
 
             public QuoteIM() { }

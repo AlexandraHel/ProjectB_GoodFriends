@@ -78,17 +78,17 @@ public class FriendsDbRepos
 #endif
             DbItemsCount = await query
 
-            //Adding filter functionality
-            .Where(i => (i.Seeded == seeded) &&
-                        (i.FirstName.ToLower().Contains(filter) ||
-                            i.LastName.ToLower().Contains(filter))).CountAsync(),
+            //Adding filter functionality on Country
+            .Where(i => i.Seeded == seeded &&
+                        (string.IsNullOrEmpty(filter) || 
+                         (i.AddressDbM != null && filter.ToLower().Contains(i.AddressDbM.Country.ToLower())))).CountAsync(),
 
             PageItems = await query
 
-            //Adding filter functionality
-            .Where(i => (i.Seeded == seeded) &&
-                        (i.FirstName.ToLower().Contains(filter) ||
-                            i.LastName.ToLower().Contains(filter)))
+            //Adding filter functionality on Country
+            .Where(i => i.Seeded == seeded &&
+                        (string.IsNullOrEmpty(filter) || 
+                         (i.AddressDbM != null && filter.ToLower().Contains(i.AddressDbM.Country.ToLower()))))
 
             //Adding paging
             .Skip(pageNumber * pageSize)
