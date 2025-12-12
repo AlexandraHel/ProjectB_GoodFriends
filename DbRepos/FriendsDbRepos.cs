@@ -81,14 +81,16 @@ public class FriendsDbRepos
             //Adding filter functionality on Country
             .Where(i => i.Seeded == seeded &&
                         (string.IsNullOrEmpty(filter) || 
-                         (i.AddressDbM != null && filter.ToLower().Contains(i.AddressDbM.Country.ToLower())))).CountAsync(),
+                         (filter.ToLower().Contains("unknown") && (i.AddressDbM == null || string.IsNullOrEmpty(i.AddressDbM.Country))) ||
+                         (i.AddressDbM != null && !string.IsNullOrEmpty(i.AddressDbM.Country) && filter.ToLower().Contains(i.AddressDbM.Country.ToLower())))).CountAsync(),
 
             PageItems = await query
 
             //Adding filter functionality on Country
             .Where(i => i.Seeded == seeded &&
                         (string.IsNullOrEmpty(filter) || 
-                         (i.AddressDbM != null && filter.ToLower().Contains(i.AddressDbM.Country.ToLower()))))
+                         (filter.ToLower().Contains("unknown") && (i.AddressDbM == null || string.IsNullOrEmpty(i.AddressDbM.Country))) ||
+                         (i.AddressDbM != null && !string.IsNullOrEmpty(i.AddressDbM.Country) && filter.ToLower().Contains(i.AddressDbM.Country.ToLower()))))
 
             //Adding paging
             .Skip(pageNumber * pageSize)

@@ -8,7 +8,7 @@
 <!-- Page List of friends -->
 <div class="container px-4 py-4" id="list-of-friends">
     <h2 class="pb-2 border-bottom">List of Friends</h2>
-    <p>The database contains @Model.NrOfFriends friends with the chosen filter</p>
+    <p>The database contains @Model.NrOfFriends friends from the chosen countries.</p>
     <form method="post" class="needs-validation" method="post" novalidate>
       
         <div class="row row-cols-1 row-cols-lg-4 align-items-stretch g-4 py-3">
@@ -70,22 +70,22 @@
                                         </a>
                                     </div>
                             }
-                            <nav aria-label="Standard pagination example">
+                            <nav aria-label="Paginition">
                                 <ul class="pagination">
                                     <li class="page-item">
-                                        <a class="page-link" href="~Friends/ListOfFriends?pagenr=@Model.PrevPageNr&search=@Model.CountryFilter" aria-label="Previous">
+                                        <a class="page-link" href="~/Friends/ListOfFriends?pagenr=@Model.PrevPageNr&search=@Model.CountryFilter" aria-label="Previous">
                                             <span aria-hidden="true">&laquo;</span>
                                         </a>
                                     </li>
                                     @for (int i = 0; i < Model.NrVisiblePages; i++)
                                     {
                                         <li class="page-item">
-                                            <a class="page-link" href="~/ListOfFriends?pagenr=@i&search=@Model.CountryFilter">@(i + 1)</a>
+                                            <a class="page-link" href="~/Friends/ListOfFriends?pagenr=@i&search=@Model.CountryFilter">@(i + 1)</a>
                                         </li>
 
                                     }
                                     <li class="page-item">
-                                        <a class="page-link" href="~/ListOfFriends?pagenr=@Model.NextPageNr&search=@Model.CountryFilter" aria-label="Next">
+                                        <a class="page-link" href="~/Friends/ListOfFriends?pagenr=@Model.NextPageNr&search=@Model.CountryFilter" aria-label="Next">
                                             <span aria-hidden="true">&raquo;</span>
                                         </a>
                                     </li>

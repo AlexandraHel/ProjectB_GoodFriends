@@ -8,7 +8,6 @@ namespace AppRazor.Pages
 {
     public class ListOfFriendsModel : PageModel
     {
-        //readonly IAdminService _service = null;
         readonly IFriendsService _friendsService = null;
         //readonly ILogger<ListOfFriendsModel> _logger = null;
 
@@ -47,16 +46,15 @@ namespace AppRazor.Pages
 
         public async Task<IActionResult> OnGet()
         {   
-            if (int.TryParse(Request.Query["pagenr"], out int pagenr))
+            if (int.TryParse(Request.Query["pagenr"], out int _pagenr))
             {
-                ThisPageNr = pagenr;
+                ThisPageNr = _pagenr;
             }
 
-            // Read country filter from query string (can be 'country' or 'search')
-            CountryFilter = Request.Query["search"].FirstOrDefault() ?? Request.Query["search"].FirstOrDefault();
+           CountryFilter = Request.Query["search"];
 
-            // Restore checkbox states based on CountryFilter
-           /* if (!string.IsNullOrEmpty(CountryFilter))
+          //Delar upp länder för att markera checkboxar när sida laddas och filter finns
+           if (!string.IsNullOrEmpty(CountryFilter))
             {
                 var countries = CountryFilter.Split(',');
                 Denmark = countries.Contains("Denmark");
@@ -64,7 +62,7 @@ namespace AppRazor.Pages
                 Norway = countries.Contains("Norway");
                 Sweden = countries.Contains("Sweden");
                 Unknown = countries.Contains("Unknown");
-            }*/
+            }
 
             var resp = await _friendsService.ReadFriendsAsync(UseSeeds, false, CountryFilter, ThisPageNr, PageSize);
             Friends = resp.PageItems;
@@ -86,7 +84,7 @@ namespace AppRazor.Pages
 
         public async Task<IActionResult> OnPostSearch()
         {
-            // Build filter string from selected checkboxes
+            // Filtersträng av valda länder som skickas tillbaka som querystring
             var selectedCountries = new List<string>();
             
             if (Denmark) selectedCountries.Add("Denmark");
@@ -96,39 +94,8 @@ namespace AppRazor.Pages
             if (Unknown) selectedCountries.Add("Unknown");
             
             CountryFilter = selectedCountries.Count > 0 ? string.Join(",", selectedCountries) : null;
-            ThisPageNr = 0; // Reset to first page when filtering
             
-            var resp = await _friendsService.ReadFriendsAsync(UseSeeds, false, CountryFilter, ThisPageNr, PageSize);
-            Friends = resp.PageItems;
-            NrOfFriends = resp.DbItemsCount;
-
-            UpdatePagination(resp.DbItemsCount);
-
-            return Page();
-        }
-
-        public async Task<IActionResult> OnPostFilter()
-        {
-            var resp = await _friendsService.ReadFriendsAsync(UseSeeds, false, CountryFilter, ThisPageNr, PageSize);
-            Friends = resp.PageItems;
-            NrOfFriends = resp.DbItemsCount;
-
-            UpdatePagination(resp.DbItemsCount);
-
-            return Page();
-        }
-
-        public async Task<IActionResult> OnPostDeleteFriend(Guid friendId)
-        {
-            await _friendsService.DeleteFriendAsync(friendId);
-
-            var resp = await _friendsService.ReadFriendsAsync(UseSeeds, false, CountryFilter, ThisPageNr, PageSize);
-            Friends = resp.PageItems;
-            NrOfFriends = resp.DbItemsCount;
-
-            UpdatePagination(resp.DbItemsCount);
-
-            return Page();
+            return RedirectToPage(new { pagenr = 0, search = CountryFilter });
         }
 
         public ListOfFriendsModel(IFriendsService friendsService)
