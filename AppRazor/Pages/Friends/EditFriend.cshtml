@@ -137,9 +137,9 @@
                                     data-bs-toggle="modal" data-bs-target="#dangerDelPModal"
 
                                     data-seido-modal-title ="Delete Pet"
-                                    data-seido-modal-body="@Model.FriendInput.Pets[k].Name is about to be deleted."
-                                    data-seido-modal-cancel="No"
-                                    data-seido-modal-Ok="Delete" >
+                                    data-seido-modal-body="@Model.FriendInput.Pets[k].Name is about to be deleted. Press save-button to confirm."
+                                    data-seido-modal-cancel="Cancel"
+                                    data-seido-modal-Ok="Ok" >
                                     Del
                                 </button>
 
@@ -227,13 +227,13 @@
                                 </button>
                                <button type="button" class="btn btn-danger btn-sm m-1"
                                     data-seido-selected-item-id="@Model.FriendInput.Quotes[k].QuoteId"
-                                    data-bs-toggle="modal" data-bs-target="#dangerDelQModal"
+                                    data-bs-toggle="modal" data-bs-target="#dangerDelQModal_@Model.FriendInput.Quotes[k].QuoteId"
 
                                     data-seido-modal-title ="Delete Quote"
-                                    data-seido-modal-body="@Model.FriendInput.Quotes[k].QuoteText is about to be deleted.">
+                                    data-seido-modal-body="@Model.FriendInput.Quotes[k].QuoteText is about to be deleted. Press save-button to confirm.">
                                     Del
                                 </button>
-                                       <div class="modal fade" id="dangerDelQModal" tabindex="-1" aria-labelledby="softModalLabel" aria-hidden="true">
+                                       <div class="modal fade" id="dangerDelQModal_@Model.FriendInput.Quotes[k].QuoteId" tabindex="-1" aria-labelledby="softModalLabel" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
