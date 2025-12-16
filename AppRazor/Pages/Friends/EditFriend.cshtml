@@ -36,6 +36,8 @@
                 <div class="row g-3">
                   <input asp-for="FriendInput.FriendId" type="hidden" />
                     <input asp-for="FriendInput.StatusIM" type="hidden" />
+                    <input asp-for="FriendInput.Address.AddressId" type="hidden" />
+                    <input asp-for="FriendInput.Address.StatusIM" value="@Model.FriendInput.Address.StatusIM" class="form-control" type="hidden" />
                     
                     <div class="col-sm-6">
                         <label for="firstName" class="form-label">First Name</label>
@@ -58,32 +60,33 @@
                     <div class="col-sm-6">
                         <label for="birthday" class="form-label">Birthday</label>
                         <input type="date" class="form-control" id="birthday" asp-for="FriendInput.Birthday">
-                    <!--Ska inte vara validation?  <span asp-validation-for="FriendInput.Birthday" class="invalid-feedback"></span>--> 
                     </div>
 
                     <div class="col-sm-6">
                         <label for="streetAddress" class="form-label">Street Address</label>
-                        <input type="text" class="form-control" id="streetAddress" asp-for="FriendInput.StreetAddress">
-                       <!--<span asp-validation-for="FriendInput.StreetAddress" class="invalid-feedback"></span>-->
+                        <input type="text" class="form-control" id="streetAddress" asp-for="FriendInput.Address.StreetAddress">
+                        <span asp-validation-for="FriendInput.Address.StreetAddress" class="invalid-feedback"></span>
                     </div>
 
                     <div class="col-sm-6">
                         <label for="zipCode" class="form-label">Zip Code</label>
-                        <input type="text" class="form-control" id="zipCode" asp-for="FriendInput.ZipCode">
+                        <input type="text" class="form-control" id="zipCode" asp-for="FriendInput.Address.ZipCode">
                        <!--<span asp-validation-for="FriendInput.ZipCode" class="invalid-feedback"></span>-->
                     </div>
 
 
                     <div class="col-sm-6">
                         <label for="city" class="form-label">City</label>
-                        <input type="text" class="form-control" id="city" asp-for="FriendInput.City">
-                        <!--<span asp-validation-for="FriendInput.City" class="invalid-feedback"></span>-->
+                        <input type="text" class="form-control" id="city" asp-for="FriendInput.Address.City">
+                        <span asp-validation-for="FriendInput.Address.City" class="invalid-feedback"></span>
                     </div>
 
                     <div class="col-sm-6">
                         <label for="country" class="form-label">Country</label>
-                        <input type="text" class="form-control" id="country" asp-for="FriendInput.Country">
-                        <!--<span asp-validation-for="FriendInput.Country" class="invalid-feedback"></span>-->
+                        <select class="form-select" asp-for="FriendInput.Address.Country" asp-items="Model.CountrySelection" id="country">
+                            <option value="">-- Select Country --</option>
+                        </select>
+                        <span asp-validation-for="FriendInput.Address.Country" class="invalid-feedback"></span>
                     </div>
 
                     <div class="row g-1">
@@ -104,7 +107,7 @@
 
                       <div class="collapse row mb-2 text-center" id="collapseAddPet">
                         <div class="form-floating col-md-5 themed-grid-col">
-                            <input type="text" asp-for="FriendInput.NewPet.Name" class="form-control" id="firstName" value="" />
+                            <input type="text" asp-for="FriendInput.NewPet.Name" class="form-control" id="petName" value="" />
                             <span asp-validation-for="FriendInput.NewPet.Name" class="invalid-feedback"></span>
                             <label for="PetName">Pet name</label>
                         </div>
@@ -275,4 +278,51 @@
         </div>
     </form>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Hämtar Friend-fält
+        const friendFields = [
+            document.getElementById('firstName'),
+            document.getElementById('lastName'),
+            document.getElementById('email'),
+            document.getElementById('birthday')
+        ];
+        
+        // Hämtar adressfält
+        const addressFields = [
+            document.getElementById('streetAddress'),
+            document.getElementById('zipCode'),
+            document.getElementById('city'),
+            document.getElementById('country')
+        ];
+        
+        // Hämtar StatusIM-fälten
+        const friendStatusField = document.querySelector('input[name="FriendInput.StatusIM"]');
+        const addressStatusField = document.querySelector('input[name="FriendInput.Address.StatusIM"]');
+        
+        // Lägg till event listeners på alla Friend-fält
+        friendFields.forEach(field => {
+            if (field) {
+                field.addEventListener('change', function() {
+                  
+                    if (friendStatusField) {
+                        friendStatusField.value = '3';
+                    }
+                });
+            }
+        });
+        
+        // Lägg till event listeners på alla adressfält
+        addressFields.forEach(field => {
+            if (field) {
+                field.addEventListener('change', function() {
+                    if (addressStatusField) {
+                        addressStatusField.value = '3'; 
+                    }
+                });
+            }
+        });
+    });
+</script>
 

@@ -28,12 +28,15 @@
                             <label class="form-check-label" for="Sweden">Sweden</label>
                             <input class="form-check-input ms-1 me-3" type="checkbox" asp-for="Sweden" />
                             
+                            <label class="form-check-label" for="Other">Other</label>
+                            <input class="form-check-input ms-1 me-3" type="checkbox" asp-for="Other" />
+                            
                             <label class="form-check-label" for="Unknown">Unknown</label>
                             <input class="form-check-input ms-1 me-3" type="checkbox" asp-for="Unknown" />
                         </li>
                         
                          <div class="col-md-3 ">
-                            <button asp-page-handler="Search" class="btn btn-outline-success" type="submit">Filter friends by country</button>
+                            <button asp-page-handler="Search" class="btn btn-secondary" type="submit">Filter friends by country</button>
                         </div>
                    
                         

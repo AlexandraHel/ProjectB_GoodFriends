@@ -6,6 +6,7 @@ using AppRazor.SeidoHelpers;
 using Services.Interfaces;
 using Models.Interfaces;
 using Models.DTO;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Models;
 using System.Net.WebSockets;
@@ -29,6 +30,7 @@ public class EditFriendModel: PageModel
         //that are bound to the <form> tag
         //EVERY property must be bound to an <input> tag in the <form>
         public IFriend Friend { get; set; }
+        public SelectList CountrySelection { get; set; }
 
         [BindProperty]
         public FriendIM FriendInput { get; set; }
@@ -60,12 +62,98 @@ public class EditFriendModel: PageModel
             
             var response = await _friendsService.ReadFriendAsync(_friendId, false);
             FriendInput = new FriendIM(response.Item);
+
+            CountrySelection = new SelectList(new List<string>
+            {
+                "Denmark",
+                "Finland",
+                "Norway",
+                "Sweden",
+                "Other",
+                "Unknown"  //Behövs inte om det finns Choose...
+            }, FriendInput.Address.Country);
             /*Friend = response.Item;
         
                 Pets = Friend.Pets?.ToList();
                 Quotes = Friend.Quotes?.ToList();
                 Address = Friend.Address;*/
 
+            return Page();
+        }
+
+             public async Task<IActionResult> OnPostSave()
+            {
+                string[] keys = {"FriendInput.FirstName",
+                              "FriendInput.LastName", 
+                              "FriendInput.Email"
+                              };
+
+                if (!ModelState.IsValidPartially(out SeidoHelpers.ModelValidationResult validationResult, keys))
+                {
+                    ValidationResult = validationResult;
+                    return Page();
+                }
+                
+                if (FriendInput.Address.StatusIM == StatusIM.Modified && FriendInput.Address.AddressId != Guid.Empty)
+                {
+                    string[] keysAddress = {"FriendInput.Address.StreetAddress",
+                              "FriendInput.Address.City", 
+                              "FriendInput.Address.Country"
+                              };
+                    if (!ModelState.IsValidPartially(out SeidoHelpers.ModelValidationResult addressValidationResult, keysAddress))
+                    {
+                        ValidationResult = addressValidationResult;
+                        return Page();
+                    }
+                    await SaveAddress();
+                }
+
+                if (FriendInput.StatusIM == StatusIM.Modified)
+                {
+                    var resp = await _friendsService.ReadFriendAsync(FriendInput.FriendId, false); 
+                    var friendToUpdate = resp.Item;
+
+                    //Update the friend with the values from the InputModel
+                    friendToUpdate = FriendInput.UpdateModel(friendToUpdate);
+                    var friendToUpdateDto = new FriendCuDto(friendToUpdate);
+                    //Save the updated friend to database
+                    await _friendsService.UpdateFriendAsync(friendToUpdateDto);
+                }
+         
+                
+                foreach (var petIM in FriendInput.Pets)
+                {
+                    if (petIM.StatusIM == StatusIM.Deleted)
+                    {
+                        await _petsService.DeletePetAsync(petIM.PetId);
+                    }
+                    else if (petIM.StatusIM == StatusIM.Modified)
+                    {
+                        var petResp = await _petsService.ReadPetAsync(petIM.PetId, false);
+                        var petToUpdate = petResp.Item;
+                        petToUpdate = petIM.UpdateModel(petToUpdate);
+                        var petToUpdateDto = new PetCuDto(petToUpdate);
+                        await _petsService.UpdatePetAsync(petToUpdateDto);
+                    }
+                }
+
+                foreach (var quoteIM in FriendInput.Quotes)
+                {
+                    if (quoteIM.StatusIM == StatusIM.Deleted)
+                    {
+                        await _quotesService.DeleteQuoteAsync(quoteIM.QuoteId);
+                    }
+                }
+
+               return Redirect($"~/Friends/ListOfFriends");
+
+            }
+
+        public async Task<IActionResult> OnPostUndo()
+        {
+            var friend = await _friendsService.ReadFriendAsync(FriendInput.FriendId, false);
+
+            FriendInput = new FriendIM(friend.Item);
             return Page();
         }
 
@@ -93,7 +181,7 @@ public class EditFriendModel: PageModel
                  //ModelState.Remove("FriendInput.NewQuote.QuoteText");
             //ModelState.Remove("FriendInput.NewQuote.Author");
 
-            string[] keys = { "FriendInput.NewPet.Name"};
+            string[] keys = {"FriendInput.NewPet.Name"};
 
             if (!ModelState.IsValidPartially(out SeidoHelpers.ModelValidationResult validationResult, keys))
             {
@@ -168,109 +256,23 @@ public class EditFriendModel: PageModel
                 return Page();
         }
 
-        public async Task<IActionResult> OnPostSave()
+   
+           //#region InputModel Albums and Artists saved to database
+        private async Task<IAddress> SaveAddress()
         {
-            string[] keys = { "FriendInput.FirstName",
-                              "FriendInput.LastName", 
-                              "FriendInput.Email"};
-            if (!ModelState.IsValidPartially(out SeidoHelpers.ModelValidationResult validationResult, keys))
-            {
-                ValidationResult = validationResult;
-                return Page();
-            }
-            var resp = await _friendsService.ReadFriendAsync(FriendInput.FriendId, false);
-            var friendToUpdate = resp.Item;
+            //Read the existing address from database
+            var resp = await _addressesService.ReadAddressAsync(FriendInput.Address.AddressId, false);
+            var addressToUpdate = resp.Item;
+            //Update the address with the values from the InputModel
+            addressToUpdate = FriendInput.Address.UpdateModel(addressToUpdate);
+                //Update the model from the InputModel
+            var addressToUpdateDto = new AddressCuDto(addressToUpdate);
+            //Save the updated address to database
+            await _addressesService.UpdateAddressAsync(addressToUpdateDto);
 
-                  //Update the friend with the values from the InputModel
-                friendToUpdate = FriendInput.UpdateModel(friendToUpdate);
-                var friendToUpdateDto = new FriendCuDto(friendToUpdate);
-                //Save the updated friend to database
-                await _friendsService.UpdateFriendAsync(friendToUpdateDto);
-         
-            //await SaveQuotes();
-
-
-                    //Handle Pets
-                foreach (var petIM in FriendInput.Pets)
-                {
-                    if (petIM.StatusIM == StatusIM.Deleted)
-                    {
-                        await _petsService.DeletePetAsync(petIM.PetId);
-                    }
-                    else if (petIM.StatusIM == StatusIM.Modified)
-                    {
-                        var petResp = await _petsService.ReadPetAsync(petIM.PetId, false);
-                        var petToUpdate = petResp.Item;
-                        petToUpdate = petIM.UpdateModel(petToUpdate);
-                        var petToUpdateDto = new PetCuDto(petToUpdate);
-                        await _petsService.UpdatePetAsync(petToUpdateDto);
-                    }
-                }
-
-                //Handle Quotes
-                foreach (var quoteIM in FriendInput.Quotes)
-                {
-                    if (quoteIM.StatusIM == StatusIM.Deleted)
-                    {
-                        await _quotesService.DeleteQuoteAsync(quoteIM.QuoteId);
-                    }
-                }
-
-               return Redirect($"~/Friends/ListOfFriends");
-            
-/*
-            var friend = FriendInput.UpdateModel(friend);
-            await _mg_service.UpdateMusicGroupAsync(new MusicGroupCUdto(mg));
-
-            if (MusicGroupInput.StatusIM == StatusIM.Inserted)
-            {
-                return Redirect($"~/ListOfGroups");
-            }
-
-            return Redirect($"~/ViewFriend?id={FriendInput.FriendId}");*/
-            
-           /* if (ModelState.IsValid)
-            {
-                //Read the existing friend from database
-                var resp = await _friendsService.ReadFriendAsync(FriendInput.FriendId, false);
-                var friendToUpdate = resp.Item;
-
-                //Update the friend with the values from the InputModel
-                friendToUpdate = FriendInput.UpdateModel(friendToUpdate);
-                var friendToUpdateDto = new FriendCuDto(friendToUpdate);
-                //Save the updated friend to database
-                await _friendsService.UpdateFriendAsync(friendToUpdateDto);
-
-                //Handle Pets
-                foreach (var petIM in FriendInput.Pets)
-                {
-                    if (petIM.StatusIM == StatusIM.Deleted)
-                    {
-                        await _petsService.DeletePetAsync(petIM.PetId);
-                    }
-                }
-
-                //Handle Quotes
-                foreach (var quoteIM in FriendInput.Quotes)
-                {
-                    if (quoteIM.StatusIM == StatusIM.Deleted)
-                    {
-                        await _quotesService.DeleteQuoteAsync(quoteIM.QuoteId);
-                    }
-                }
-
-               return Redirect($"~/Friends/Overview");
-            }
-            return Page();*/
+            return addressToUpdate;
         }
 
-        public async Task<IActionResult> OnPostUndo()
-        {
-            var friend = await _friendsService.ReadFriendAsync(FriendInput.FriendId, false);
-
-            FriendInput = new FriendIM(friend.Item);
-            return Page();
-        }
 
         #region Input Models
         public enum StatusIM { Unknown, Unchanged, Inserted, Modified, Deleted}
@@ -288,16 +290,20 @@ public class EditFriendModel: PageModel
 
             [Required(ErrorMessage = "Your friend must have an email")]
             public string Email { get; set; }
+
+            //Jag har valt att inte göra Birthday required eftersom den kan vara null i modellen
             public DateTime? Birthday { get; set; }
-            public string StreetAddress { get; set; } = "" ;
+
+            public AddressIM Address { get; set; } = new AddressIM();
+            /*public string StreetAddress { get; set; } = "" ;
             public int ZipCode { get; set; } = 0;
             public string City { get; set; } = "" ;
-            public string Country { get; set; } = "" ; // Ska andra länder tillåtas? Selectlist/dropdown?
+            public string Country { get; set; } = "" ; */
 
             public List<PetIM> Pets { get; set; } = new List<PetIM>();
             public List<QuoteIM> Quotes { get; set; } = new List<QuoteIM>();
 
-            public FriendIM() {}
+            public FriendIM() {} //Ta bort?
             public FriendIM(IFriend model) 
             {
                 StatusIM = StatusIM.Unchanged;
@@ -306,11 +312,7 @@ public class EditFriendModel: PageModel
                 LastName = model.LastName;
                 Email = model.Email;
                 Birthday = model.Birthday;
-                StreetAddress = model.Address?.StreetAddress ?? "";
-                ZipCode = model.Address?.ZipCode ?? 0;
-                City = model.Address?.City ?? "";
-                Country = model.Address?.Country ?? "";
-
+                Address = model.Address != null ? new AddressIM(model.Address) : new AddressIM();
                 Pets = model.Pets?.Select(m => new PetIM(m)).ToList() ?? new List<PetIM>();
                 Quotes = model.Quotes?.Select(m => new QuoteIM(m)).ToList() ?? new List<QuoteIM>();
             }
@@ -322,22 +324,65 @@ public class EditFriendModel: PageModel
                 model.Email = this.Email;
                 model.Birthday = this.Birthday;
 
-                if (model.Address != null)
-                {
-                    model.Address.StreetAddress = this.StreetAddress;
-                    model.Address.ZipCode = this.ZipCode;
-                    model.Address.City = this.City;
-                    model.Address.Country = this.Country;
-                }
-
                 return model;
             }
 
             public PetIM NewPet { get; set; } = new PetIM();
             public QuoteIM NewQuote { get; set; } = new QuoteIM();
+            public AddressIM NewAddress { get; set; } = new AddressIM();
 
         }
+        public class AddressIM
+        {
+            public StatusIM StatusIM { get; set; }
 
+            public Guid AddressId { get; set; }
+
+            [Required(ErrorMessage = "Address must have a street address")]
+            public string StreetAddress { get; set; }
+
+            //ZipCode behöver inte vara required, den sätts till 0 om den är null och inget krav att kunna skicka brev
+            public int ZipCode { get; set; }
+
+            [Required(ErrorMessage = "Address must have a city")]
+            public string City { get; set; }
+
+            [Required(ErrorMessage = "Address must have a country")]
+            public string Country { get; set; }
+
+            public AddressIM() { }
+            public AddressIM(AddressIM original)
+            {
+                StatusIM = StatusIM.Unchanged;
+                AddressId = original.AddressId;
+                StreetAddress = original.StreetAddress;
+                ZipCode = original.ZipCode;
+                City = original.City;
+                Country = original.Country;
+            }
+            public AddressIM(IAddress model)
+            {
+                StatusIM = StatusIM.Unchanged;
+                AddressId = model.AddressId;
+                StreetAddress = model.StreetAddress;
+                ZipCode = model.ZipCode;
+                City = model.City;
+                Country = model.Country;
+            }
+             public IAddress UpdateModel(IAddress model)
+            {
+                model.AddressId = this.AddressId;
+                model.StreetAddress = this.StreetAddress;
+                model.ZipCode = this.ZipCode;
+                model.City = this.City;
+                model.Country = this.Country;
+                return model;
+            }
+                public AddressCuDto CreateCUdto() => new AddressCuDto(){
+                AddressId = null,
+                StreetAddress = this.StreetAddress,
+            };
+        }
         public class PetIM
         {
             public StatusIM StatusIM { get; set; }
@@ -414,6 +459,7 @@ public class EditFriendModel: PageModel
             };
         }
         #endregion
+     
 }
 /*
     <button type="button" class="btn btn-danger btn-sm m-1"

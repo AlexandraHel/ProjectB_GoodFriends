@@ -43,6 +43,9 @@ namespace AppRazor.Pages
         
         [BindProperty]
         public bool Unknown { get; set; }
+         
+        [BindProperty]        
+        public bool Other { get; set; }
 
         public async Task<IActionResult> OnGet()
         {   
