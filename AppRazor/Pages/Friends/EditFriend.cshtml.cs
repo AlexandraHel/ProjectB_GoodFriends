@@ -91,6 +91,15 @@ public class EditFriendModel: PageModel
                 if (!ModelState.IsValidPartially(out SeidoHelpers.ModelValidationResult validationResult, keys))
                 {
                     ValidationResult = validationResult;
+                    CountrySelection = new SelectList(new List<string>
+                    {
+                        "Denmark",
+                        "Finland",
+                        "Norway",
+                        "Sweden",
+                        "Other",
+                        "Unknown"
+                    }, FriendInput.Address.Country);
                     return Page();
                 }
                 
@@ -102,7 +111,16 @@ public class EditFriendModel: PageModel
                               };
                     if (!ModelState.IsValidPartially(out SeidoHelpers.ModelValidationResult addressValidationResult, keysAddress))
                     {
-                        ValidationResult = addressValidationResult;
+                        /*ValidationResult = addressValidationResult;
+                        CountrySelection = new SelectList(new List<string>
+                        {
+                            "Denmark",
+                            "Finland",
+                            "Norway",
+                            "Sweden",
+                            "Other",
+                            "Unknown"
+                        }, FriendInput.Address.Country);*/
                         return Page();
                     }
                     await SaveAddress();
@@ -181,7 +199,7 @@ public class EditFriendModel: PageModel
                  //ModelState.Remove("FriendInput.NewQuote.QuoteText");
             //ModelState.Remove("FriendInput.NewQuote.Author");
 
-            string[] keys = {"FriendInput.NewPet.Name"};
+            string[] keys = {"FriendInput.NewPet.Name"}; //Behövs inte om det bara är Name som ska valideras?
 
             if (!ModelState.IsValidPartially(out SeidoHelpers.ModelValidationResult validationResult, keys))
             {
@@ -224,7 +242,7 @@ public class EditFriendModel: PageModel
                 var newQuoteIM = new QuoteIM()
                 {
                     StatusIM = StatusIM.Unchanged,
-                    QuoteId = Guid.NewGuid(), //Temporary Guid, will be replaced when saved to database
+                    QuoteId = Guid.NewGuid(), //Tillfälligt ID, det riktiga skapas i databasen
                     QuoteText = FriendInput.NewQuote.QuoteText,
                     Author = FriendInput.NewQuote.Author
                 };
@@ -239,18 +257,14 @@ public class EditFriendModel: PageModel
 
         public IActionResult OnPostEditPet(Guid petId)
         {
-            //Find the PetIM to edit
             var petIM = FriendInput.Pets.First(p => p.PetId == petId);
-            //Set its status to Modified so it will be updated in database
             petIM.StatusIM = StatusIM.Modified;
 
             return Page();
         }
          public IActionResult OnPostEditQuote(Guid quoteId)
         {
-                //Find the QuoteIM to edit
                 var quoteIM = FriendInput.Quotes.First(q => q.QuoteId == quoteId);
-                //Set its status to Modified so it will be updated in database
                 quoteIM.StatusIM = StatusIM.Modified;
     
                 return Page();
@@ -295,10 +309,6 @@ public class EditFriendModel: PageModel
             public DateTime? Birthday { get; set; }
 
             public AddressIM Address { get; set; } = new AddressIM();
-            /*public string StreetAddress { get; set; } = "" ;
-            public int ZipCode { get; set; } = 0;
-            public string City { get; set; } = "" ;
-            public string Country { get; set; } = "" ; */
 
             public List<PetIM> Pets { get; set; } = new List<PetIM>();
             public List<QuoteIM> Quotes { get; set; } = new List<QuoteIM>();
@@ -342,7 +352,7 @@ public class EditFriendModel: PageModel
             public string StreetAddress { get; set; }
 
             //ZipCode behöver inte vara required, den sätts till 0 om den är null och inget krav att kunna skicka brev
-            public int ZipCode { get; set; }
+            public int ZipCode { get; set; } = 0;
 
             [Required(ErrorMessage = "Address must have a city")]
             public string City { get; set; }
@@ -461,31 +471,3 @@ public class EditFriendModel: PageModel
         #endregion
      
 }
-/*
-    <button type="button" class="btn btn-danger btn-sm m-1"
-                                    data-seido-selected-item-id="@Model.FriendInput.Quotes[k].QuoteId"
-                                    data-bs-toggle="modal" data-bs-target="#dangerDelQModal"
-
-                                    data-seido-modal-title ="Delete Quote"
-                                    data-seido-modal-body="@Model.FriendInput.Quotes[k].QuoteText is about to be deleted.">
-                                    Del
-                                </button>
-
-                                 <div class="modal fade" id="dangerDelQModal" tabindex="-1" aria-labelledby="softModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title text-danger" id="softModalLabel">Confirm deletion</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                Quote will be deleted.
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                <button type="submit" asp-page-handler="DeleteQuote"  data-seido-selected-item-id="@Model.FriendInput.Quotes[k].QuoteId" class="btn btn-primary btn-danger" data-bs-dismiss="modal">Ok</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                        </div> */

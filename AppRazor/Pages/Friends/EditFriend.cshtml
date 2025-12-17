@@ -8,7 +8,7 @@
 @attribute [IgnoreAntiforgeryToken] 
 
 <div class="container px-4 py-4" id="edit-friend">
-    <form class="needs-validation" method="post" novalidate>
+    <form class="needs-validation" method="post">
    
     <h2 class="pb-2 border-bottom">
     Edit details of a friend 
@@ -41,13 +41,13 @@
                     
                     <div class="col-sm-6">
                         <label for="firstName" class="form-label">First Name</label>
-                        <input type="text" class="form-control" id="firstName" asp-for="FriendInput.FirstName">
+                        <input asp-for="FriendInput.FirstName" type="text" class="form-control" id="firstName" >
                         <span asp-validation-for="FriendInput.FirstName" class="invalid-feedback"></span>
                     </div>
 
                     <div class="col-sm-6">
                         <label for="lastName" class="form-label">Last Name</label>
-                        <input type="text" class="form-control" id="lastName" asp-for="FriendInput.LastName">
+                        <input asp-for="FriendInput.LastName" type="text" class="form-control" id="lastName" >
                         <span asp-validation-for="FriendInput.LastName" class="invalid-feedback"></span>
                     </div>
 
@@ -70,8 +70,7 @@
 
                     <div class="col-sm-6">
                         <label for="zipCode" class="form-label">Zip Code</label>
-                        <input type="text" class="form-control" id="zipCode" asp-for="FriendInput.Address.ZipCode">
-                       <!--<span asp-validation-for="FriendInput.ZipCode" class="invalid-feedback"></span>-->
+                        <input type="text" class="form-control" id="zipCode" asp-for="FriendInput.Address.ZipCode" data-val="false">
                     </div>
 
 
@@ -278,6 +277,10 @@
         </div>
     </form>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
