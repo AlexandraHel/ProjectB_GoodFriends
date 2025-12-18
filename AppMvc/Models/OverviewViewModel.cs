@@ -9,5 +9,19 @@ namespace AppMvc.Models;
 
 public class OverviewViewModel
 {
-     public IEnumerable<GstUsrInfoFriendsDto>? CountryInfo;
+        private readonly IAdminService _adminService;
+
+        public string Country { get; set; }
+        public IEnumerable<GstUsrInfoFriendsDto>? CountryInfo;
+        public IEnumerable<GstUsrInfoFriendsDto>? FriendsInfo;
+        public IEnumerable<GstUsrInfoPetsDto>? PetsInfo;
+        public int FriendsWithoutCountry { get; set; }
+
+        public OverviewViewModel(IAdminService adminService)
+        {
+            _adminService = adminService;
+            
+        }
+
+     
 }

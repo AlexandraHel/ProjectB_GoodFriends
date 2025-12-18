@@ -1,9 +1,49 @@
-﻿@model AppMvc.Models.OverviewViewModel
+﻿@using System.Collections.Generic
+@using System.Linq
+
+
+@model AppMvc.Models.OverviewViewModel
 
 @{
+  ViewData["Title"] = "Overview";
 }
+        <div class="container px-4 py-4" id="webapi-info">
+          <h2 class="pb-2 border-bottom">Friends overview by country</h2>
+          <p>Below you see number of friends by country, use the links to see details of the cities in the countries. </p>
 
-       <div class="container px-4 py-4" id="webapi-info">
+          <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 py-5">
+
+          @{foreach (var item in Model.CountryInfo)
+          {
+            <div class="col d-flex align-items-start">
+              <svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em"><use xlink:href="#globe-europe-africa"/></svg>
+              <div>
+                <h3 class="fw-bold mb-1 fs-3 text-body-emphasis">@item.Country</h3>
+                <p class="fs-5 mb-2">@item.NrFriends friends</p>
+                <a href="~/Overview/OverviewCity?country=@item.Country" class="btn btn-primary">
+                  See details by city
+                </a> 
+              </div>
+            </div>   
+          }
+          <!-- Nedanstående ger fel resultat (ger friends med adress) --> 
+          @if (Model.FriendsWithoutCountry > 0) 
+          {
+            <div class="col d-flex align-items-start">
+              <svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em"><use xlink:href="#globe-europe-africa"/></svg>
+              <div>
+                <h3 class="fw-bold mb-1 fs-3 text-body-emphasis">No address</h3>
+                <p class="fs-5 mb-2">@Model.FriendsWithoutCountry friends</p>
+              </div>
+            </div>
+          }
+          }
+          </div>
+        </div>
+       
+       
+       
+       <div class="container px-4 py-4" id="webapi-info" hidden>
           <h2 class="pb-2 border-bottom">Friends info</h2>
           <p>Below you see an overview of the content presented by the WebApi. Click on the link to see details. </p>
 

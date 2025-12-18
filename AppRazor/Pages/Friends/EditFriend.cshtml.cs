@@ -225,7 +225,7 @@ public class EditFriendModel: PageModel
         }
         public IActionResult OnPostAddQuote()
         {
-            // Only validate NewQuote, not other fields like NewPet
+            // Only validate NewQuote, not other fields like NewPet  OBS kolla om det funkar med andra fält tomma också
             ModelState.Remove("FriendInput.NewPet.Name");
             
             if (!ModelState.IsValid)

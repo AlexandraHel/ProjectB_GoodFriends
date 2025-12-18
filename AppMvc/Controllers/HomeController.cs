@@ -2,19 +2,18 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using AppMvc.Models;
 using Services.Interfaces;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace AppMvc.Controllers;
 
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    //private readonly IAddressesService _addressesService;
     private readonly IAdminService _adminService;
 
-    public HomeController(ILogger<HomeController> logger, IAddressesService addressesService, IAdminService adminService)
+    public HomeController(ILogger<HomeController> logger, IAdminService adminService)
     {
         _logger = logger;
-        //_addressesService = addressesService;
         _adminService = adminService;
     }
 
@@ -25,17 +24,27 @@ public class HomeController : Controller
 
     public IActionResult Seed()
     {
-        return View();
+        var vm = new SeedViewModel(_adminService);
+        return View(vm);
     }
 
-    public async Task<IActionResult> Overview()
+    [HttpPost]
+    public async Task<IActionResult> OnPost(SeedViewModel vm)
         {
-            var viewModel = new OverviewViewModel();
-            //var addresses = await _addressesService.ReadAddressesAsync(true, false, "Denmark", 0 ,50);
-            var info = await _adminService.GuestInfoAsync();
-            viewModel.CountryInfo = info.Item.Friends.Where(f=> f.Country == "Denmark");
-            return View(viewModel);
+            if (ModelState.IsValid)
+            {
+                if (vm.RemoveSeeds)
+                {
+                    await vm.RemoveSeedsAsync();
+                    await vm.RemoveSeedsAsync();
+                }
+                await vm.SeedDataAsync();
+
+               return Redirect($"~/Overview/Overview");
+            }
+            return View(vm);
         }
+
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {

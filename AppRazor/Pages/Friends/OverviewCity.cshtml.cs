@@ -11,9 +11,11 @@ namespace AppRazor.Pages.Friends
       
         public IEnumerable<GstUsrInfoFriendsDto>? FriendsInfo;
         public IEnumerable<GstUsrInfoPetsDto>? PetsInfo;
+        public string? Country { get; set; }
      
         public async Task<IActionResult> OnGet(string country)
         {
+            Country = country;
             var info = await _adminService.GuestInfoAsync();
          
             FriendsInfo = info.Item.Friends
