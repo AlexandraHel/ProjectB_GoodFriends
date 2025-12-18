@@ -22,32 +22,47 @@ public class HomeController : Controller
         return View();
     }
 
-    public IActionResult Seed()
+    public async Task<IActionResult> Seed()
     {
-        var vm = new SeedViewModel(_adminService);
+        int nrOfFriends = await NrOfFriends();
+        var vm = new SeedViewModel
+        {
+            NrOfFriends = nrOfFriends
+        };
         return View(vm);
     }
 
     [HttpPost]
-    public async Task<IActionResult> OnPost(SeedViewModel vm)
+    public async Task<IActionResult> SeedData(SeedViewModel vm)
+    {
+        if (ModelState.IsValid)
         {
-            if (ModelState.IsValid)
+            if (vm.RemoveSeeds)
             {
-                if (vm.RemoveSeeds)
-                {
-                    await vm.RemoveSeedsAsync();
-                    await vm.RemoveSeedsAsync();
-                }
-                await vm.SeedDataAsync();
-
-               return Redirect($"~/Overview/Overview");
+                await _adminService.RemoveSeedAsync(true);
+                await _adminService.RemoveSeedAsync(false);
             }
-            return View(vm);
+            await _adminService.SeedAsync(vm.NrOfItemsToSeed);
+
+            return Redirect($"~/Overview/Overview");
         }
+        
+        // Repopulate NrOfFriends on validation error
+       // var info = await _adminService.GuestInfoAsync();
+        //vm.NrOfFriends = info.Item.Db.NrSeededFriends + info.Item.Db.NrUnseededFriends;
+        return View("Seed", vm);
+    }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
+
+        private async Task<int> NrOfFriends()
+        {
+            var info = await _adminService.GuestInfoAsync();
+            //return    
+            return info.Item.Db.NrSeededFriends + info.Item.Db.NrUnseededFriends;
+        }
 }

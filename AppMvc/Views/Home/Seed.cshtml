@@ -9,13 +9,13 @@
     <h2 class="pb-2 border-bottom">Seed friends</h2>
 
     <p>
-        Current the database contains @await Model.nrOfFriends() friends. Reseed according to the number of items you want.
+        Current the database contains @Model.NrOfFriends friends. Reseed according to the number of items you want.
         You may optionally remove the old data before seeding.
     </p>
 
     <div class="row row-cols-1 row-cols-lg-4 align-items-stretch g-4 py-5">
         <div class="col-md-7 col-lg-8">
-            <form class="needs-validation" method="post" novalidate>
+            <form class="needs-validation" method="post">
                 <div class="row g-3">
                     <div class="col-sm-6">
                         <label for="nrItems" class="form-label">Number of items</label>
@@ -27,7 +27,7 @@
                         
                     </div>
                 </div>
-                <button class="w-100 btn btn-primary btn-lg my-4" type="submit">Seed</button>
+                <button class="w-100 btn btn-primary btn-lg my-4" type="submit" asp-controller="Home" asp-action="SeedData">Seed</button>
             </form>
         </div>
     </div>
