@@ -1,0 +1,96 @@
+@model AppMvc.Models.FriendListViewModel
+@{
+    ViewData["Title"] = "List of Friends";
+}
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@attribute [IgnoreAntiforgeryToken]
+
+<div class="container px-4 py-4" id="list-of-friends">
+    <h2 class="pb-2 border-bottom">List of Friends</h2>
+    <p>The database contains @Model.NrOfFriends friends from the chosen countries.</p>
+    <form method="post" class="needs-validation" method="post" novalidate>
+      
+        <div class="row row-cols-1 row-cols-lg-4 align-items-stretch g-4 py-3">
+            <div class="col-md-7 col-lg-10">
+                <div class="row mb-2">
+                   
+                        <li class="d-flex align-items-center px-3 py-2">
+                             <label class="form-check-label" for="Denmark">Denmark</label>
+                             <input class="form-check-input ms-1 me-3" type="checkbox" asp-for="Denmark" />
+                           
+                            <label class="form-check-label" for="Finland">Finland</label>
+                            <input class="form-check-input ms-1 me-3" type="checkbox" asp-for="Finland" />
+
+                            <label class="form-check-label" for="Norway">Norway</label>
+                            <input class="form-check-input ms-1 me-3" type="checkbox" asp-for="Norway" />
+
+                            <label class="form-check-label" for="Sweden">Sweden</label>
+                            <input class="form-check-input ms-1 me-3" type="checkbox" asp-for="Sweden" />
+                            
+                            <label class="form-check-label" for="Other">Other</label>
+                            <input class="form-check-input ms-1 me-3" type="checkbox" asp-for="Other" />
+                            
+                            <label class="form-check-label" for="Unknown">Unknown</label>
+                            <input class="form-check-input ms-1 me-3" type="checkbox" asp-for="Unknown" />
+                        </li>
+                        
+                         <div class="col-md-3 ">
+                            <button asp-controller="FriendList" asp-action="Search" class="btn btn-secondary" type="submit">Filter friends by country</button>
+                        </div>
+                   
+                    </div>
+                
+                <div class="row mb-2 text-center">
+                    <input type="hidden" name="friendId" data-seido-selected-item-id-target />
+
+                    <div class="col-md-10 themed-grid-head-col">Friend Name</div>
+                    <div class="col-md-2 themed-grid-head-col">
+                        
+                    </div>
+                </div>
+
+                <div class="row mb-2 text-center">
+                        @if (Model.Friends is not null)
+                        {
+                            @foreach (var item in Model.Friends)
+                            {
+                                <div class="col-md-10 themed-grid-col">
+                                    <a href="~/Friends/ViewFriend?id=@item.FriendId">
+                                        @item.FirstName @item.LastName
+                                    </a>
+                                </div>
+                                    <div class="col-md-2 themed-grid-col">
+                                        <a href="~/Friends/EditFriend?id=@item.FriendId" class="btn btn-secondary btn-sm m-1" type="button">
+                                        Edit
+                                        </a>
+                                    </div>
+                            }
+                            <nav aria-label="Paginition">
+                                <ul class="pagination">
+                                    <li class="page-item">
+                                        <a class="page-link" href="~/Friends/ListOfFriends?pagenr=@Model.PrevPageNr&search=@Model.CountryFilter" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                    @for (int i = 0; i < Model.NrVisiblePages; i++)
+                                    {
+                                        <li class="page-item">
+                                            <a class="page-link" href="~/Friends/ListOfFriends?pagenr=@i&search=@Model.CountryFilter">@(i + 1)</a>
+                                        </li>
+
+                                    }
+                                    <li class="page-item">
+                                        <a class="page-link" href="~/Friends/ListOfFriends?pagenr=@Model.NextPageNr&search=@Model.CountryFilter" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        }
+                    </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+

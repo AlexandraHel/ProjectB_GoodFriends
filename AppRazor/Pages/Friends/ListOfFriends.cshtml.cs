@@ -10,9 +10,6 @@ namespace AppRazor.Pages
     {
         readonly IFriendsService _friendsService = null;
         //readonly ILogger<ListOfFriendsModel> _logger = null;
-
-        [BindProperty]
-        public bool UseSeeds { get; set; } = true;
         
         public List<IFriend> Friends { get; set; }
 
@@ -25,6 +22,10 @@ namespace AppRazor.Pages
         public int PrevPageNr { get; set; } = 0;
         public int NextPageNr { get; set; } = 0;
         public int NrVisiblePages { get; set; } = 0;
+
+        
+        [BindProperty] //behöver inte vara bindproperty då valet inte finns längre?
+        public bool UseSeeds { get; set; } = true; 
 
         [BindProperty]
         public string CountryFilter { get; set; } = null;
@@ -42,7 +43,7 @@ namespace AppRazor.Pages
         public bool Sweden { get; set; }
         
         [BindProperty]
-        public bool Unknown { get; set; }
+        public bool Unknown { get; set; }  //ska den användas på detta sätt eller bara tom?
          
         [BindProperty]        
         public bool Other { get; set; }
@@ -64,7 +65,9 @@ namespace AppRazor.Pages
                 Finland = countries.Contains("Finland");
                 Norway = countries.Contains("Norway");
                 Sweden = countries.Contains("Sweden");
-                Unknown = countries.Contains("Unknown");
+                Unknown = countries.Contains("Unknown"); //string empty?
+
+                //Other = countries.Contains(string.Empty);
             }
 
             var resp = await _friendsService.ReadFriendsAsync(UseSeeds, false, CountryFilter, ThisPageNr, PageSize);
@@ -74,15 +77,6 @@ namespace AppRazor.Pages
             UpdatePagination(resp.DbItemsCount);
 
             return Page();
-        }
-
-        private void UpdatePagination(int nrOfItems)
-        {
-            //Pagination
-            NrOfPages = (int)Math.Ceiling((double)nrOfItems / PageSize);
-            PrevPageNr = Math.Max(0, ThisPageNr - 1);
-            NextPageNr = Math.Min(NrOfPages - 1, ThisPageNr + 1);
-            NrVisiblePages = Math.Min(10, NrOfPages);
         }
 
         public async Task<IActionResult> OnPostSearch()
@@ -95,11 +89,23 @@ namespace AppRazor.Pages
             if (Norway) selectedCountries.Add("Norway");
             if (Sweden) selectedCountries.Add("Sweden");
             if (Unknown) selectedCountries.Add("Unknown");
+            //if (Other) selectedCountries.Add("Other");
             
             CountryFilter = selectedCountries.Count > 0 ? string.Join(",", selectedCountries) : null;
             
             return RedirectToPage(new { pagenr = 0, search = CountryFilter });
         }
+
+        
+        private void UpdatePagination(int nrOfItems)
+        {
+            //Pagination
+            NrOfPages = (int)Math.Ceiling((double)nrOfItems / PageSize);
+            PrevPageNr = Math.Max(0, ThisPageNr - 1);
+            NextPageNr = Math.Min(NrOfPages - 1, ThisPageNr + 1);
+            NrVisiblePages = Math.Min(10, NrOfPages);
+        }
+
 
         public ListOfFriendsModel(IFriendsService friendsService)
         {
