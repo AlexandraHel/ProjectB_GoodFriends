@@ -10,9 +10,12 @@ namespace AppRazor.Pages.Friends
     public class OverviewModel : PageModel
     {
         private readonly IAdminService _adminService;
+        private readonly IFriendsService _friendsService;
       
         public IEnumerable<GstUsrInfoFriendsDto>? CountryInfo;
+
         public int FriendsWithoutCountry { get; set; }
+       
      
         public async Task<IActionResult> OnGet()
         {
@@ -27,17 +30,15 @@ namespace AppRazor.Pages.Friends
                     NrFriends = g.Sum(f => f.NrFriends)
                 });
             
-            FriendsWithoutCountry = info.Item.Friends
-                .Where(f => f.Country == null)
-                .Sum(f => f.NrFriends);
+            FriendsWithoutCountry = _friendsService.ReadFriendsAsync(true, true, "Unknown", 0, 10).Result.DbItemsCount;
          
             return Page();
         }
 
-        public OverviewModel(IAdminService adminService)
+        public OverviewModel(IAdminService adminService, IFriendsService friendsService)
         {
             _adminService = adminService;
-            
+            _friendsService = friendsService;
         }
     }
 }
