@@ -55,7 +55,7 @@
                             @foreach (var item in Model.Friends)
                             {
                                 <div class="col-md-10 themed-grid-col">
-                                    <a href="~/Friends/ViewFriend?id=@item.FriendId">
+                                    <a asp-controller="Friend" asp-action="ViewFriend" asp-route-id="@item.FriendId">
                                         @item.FirstName @item.LastName
                                     </a>
                                 </div>

@@ -37,7 +37,7 @@ namespace AppMvc.Models
         public bool Sweden { get; set; }
         
         [BindProperty]
-        public bool Unknown { get; set; }  //ska den användas på detta sätt eller bara tom?
+        public bool Unknown { get; set; } 
          
         [BindProperty]        
         public bool Other { get; set; }
