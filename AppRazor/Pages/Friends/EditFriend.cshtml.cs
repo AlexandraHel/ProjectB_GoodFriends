@@ -55,9 +55,10 @@ public class EditFriendModel : PageModel
     }
 
     public SeidoHelpers.ModelValidationResult ValidationResult { get; set; } = new SeidoHelpers.ModelValidationResult(false, null, null);
+    //  public ModelValidationResult ValidationResult { get; set; } = new ModelValidationResult(false, null, null);
     public async Task<IActionResult> OnGet()
     {
-        StatusIM statusIM;
+        StatusIM statusIM; //behövs inte?
         Guid _friendId = Guid.Parse(Request.Query["id"]);
 
         var response = await _friendsService.ReadFriendAsync(_friendId, false);
@@ -70,7 +71,7 @@ public class EditFriendModel : PageModel
                 "Norway",
                 "Sweden",
                 "Other",
-                "Unknown"  //Behövs inte om det finns Choose...
+                "Unknown"  //Behövs inte om det finns Choose?...
             }, FriendInput.Address.Country);
         /*Friend = response.Item;
 
@@ -111,7 +112,7 @@ public class EditFriendModel : PageModel
                               };
             if (!ModelState.IsValidPartially(out SeidoHelpers.ModelValidationResult addressValidationResult, keysAddress))
             {
-                /*ValidationResult = addressValidationResult;
+                ValidationResult = addressValidationResult;
                 CountrySelection = new SelectList(new List<string>
                 {
                     "Denmark",
@@ -120,7 +121,7 @@ public class EditFriendModel : PageModel
                     "Sweden",
                     "Other",
                     "Unknown"
-                }, FriendInput.Address.Country);*/
+                }, FriendInput.Address.Country);
                 return Page();
             }
             await SaveAddress();
@@ -161,6 +162,14 @@ public class EditFriendModel : PageModel
             {
                 await _quotesService.DeleteQuoteAsync(quoteIM.QuoteId);
             }
+            else if (quoteIM.StatusIM == StatusIM.Modified)
+            {
+                var quoteResp = await _quotesService.ReadQuoteAsync(quoteIM.QuoteId, false);
+                var quoteToUpdate = quoteResp.Item;
+                quoteToUpdate = quoteIM.UpdateModel(quoteToUpdate);
+                var quoteToUpdateDto = new QuoteCuDto(quoteToUpdate);
+                await _quotesService.UpdateQuoteAsync(quoteToUpdateDto);
+            }
         }
 
         return Redirect($"~/Friends/ListOfFriends");
@@ -169,10 +178,16 @@ public class EditFriendModel : PageModel
 
     public async Task<IActionResult> OnPostUndo()
     {
-        var friend = await _friendsService.ReadFriendAsync(FriendInput.FriendId, false);
+        return RedirectToPage(new { id = FriendInput.FriendId });
+         /*var mg = await _mg_service.ReadMusicGroupAsync(MusicGroupInput.MusicGroupId, false);
 
-        FriendInput = new FriendIM(friend.Item);
-        return Page();
+            //Repopulate the InputModel
+            MusicGroupInput = new MusicGroupIM(mg.Item);
+            
+            //Clear ModelState to ensure the page displays the updated values
+            ModelState.Clear();
+            
+            return Page();*/
     }
 
     public IActionResult OnPostDeletePet(Guid petId)
@@ -183,6 +198,16 @@ public class EditFriendModel : PageModel
             pet.StatusIM = StatusIM.Deleted;
         }
 
+        CountrySelection = new SelectList(new List<string>
+        {
+            "Denmark",
+            "Finland",
+            "Norway",
+            "Sweden",
+            "Other",
+            "Unknown"
+        }, FriendInput.Address.Country);
+
         return Page();
     }
     public IActionResult OnPostDeleteQuote(Guid quoteId)
@@ -190,15 +215,21 @@ public class EditFriendModel : PageModel
         //Set the Artist as deleted, it will not be rendered
         FriendInput.Quotes.First(a => a.QuoteId == quoteId).StatusIM = StatusIM.Deleted;
 
+        CountrySelection = new SelectList(new List<string>
+        {
+            "Denmark",
+            "Finland",
+            "Norway",
+            "Sweden",
+            "Other",
+            "Unknown"
+        }, FriendInput.Address.Country);
+
         return Page();
     }
 
     public async Task<IActionResult> OnPostAddPet()
     {
-        //Ta bort knappar om detta inte ska användas
-        //ModelState.Remove("FriendInput.NewQuote.QuoteText");
-        //ModelState.Remove("FriendInput.NewQuote.Author");
-
         string[] keys = { "FriendInput.NewPet.Name" }; //Behövs inte om det bara är Name som ska valideras?
 
         if (!ModelState.IsValidPartially(out SeidoHelpers.ModelValidationResult validationResult, keys))
@@ -220,52 +251,127 @@ public class EditFriendModel : PageModel
         var friend = await _friendsService.ReadFriendAsync(FriendInput.FriendId, false);
         FriendInput = new FriendIM(friend.Item);
 
+        CountrySelection = new SelectList(new List<string>
+        {
+            "Denmark",
+            "Finland",
+            "Norway",
+            "Sweden",
+            "Other",
+            "Unknown"
+        }, FriendInput.Address.Country);
+
         return Page();
 
     }
-    public IActionResult OnPostAddQuote()
+    public async Task<IActionResult> OnPostAddQuote()
     {
-        // Only validate NewQuote, not other fields like NewPet  OBS kolla om det funkar med andra fält tomma också
-        ModelState.Remove("FriendInput.NewPet.Name");
+        // Only validate NewQuote, not other fields like NewPet  OBS funkar inte med andra fält tomma? Något för AddPet också?
+        //ModelState.Remove("FriendInput.NewPet.Name");
 
-        if (!ModelState.IsValid)
-        {
-            var errors = ModelState
-                .Where(x => x.Value.Errors.Count > 0)
-                .Select(x => new { x.Key, x.Value.Errors })
-                .ToArray();
-            // Set breakpoint here or log errors
-        }
-        if (ModelState.IsValid)
-        {
-            //Add new QuoteIM to the FriendInput.Quotes list
-            var newQuoteIM = new QuoteIM()
-            {
-                StatusIM = StatusIM.Unchanged,
-                QuoteId = Guid.NewGuid(), //Tillfälligt ID, det riktiga skapas i databasen
-                QuoteText = FriendInput.NewQuote.QuoteText,
-                Author = FriendInput.NewQuote.Author
-            };
-            FriendInput.Quotes.Add(newQuoteIM);
+        string[] keys = { "FriendInput.NewQuote.QuoteText", "FriendInput.NewQuote.Author" };
 
-            //Clear the NewQuote input model
-            FriendInput.NewQuote = new QuoteIM();
+        if (!ModelState.IsValidPartially(out SeidoHelpers.ModelValidationResult validationResult, keys))
+        {
+            ValidationResult = validationResult;
+            return Page();
         }
+
+        var quoteDto = new QuoteCuDto()
+        {
+            QuoteId = null,
+            Quote = FriendInput.NewQuote.QuoteText,
+            Author = FriendInput.NewQuote.Author,
+            FriendsId = new List<Guid> { FriendInput.FriendId }
+        };
+        //Add new QuoteIM to the FriendInput.Quotes list
+        /*var newQuoteIM = new QuoteIM()
+        {
+            StatusIM = StatusIM.Unchanged,
+            QuoteId = Guid.NewGuid(), //Tillfälligt ID, det riktiga skapas i databasen
+            QuoteText = FriendInput.NewQuote.QuoteText,
+            Author = FriendInput.NewQuote.Author
+        };*/
+        //FriendInput.Quotes.Add(newQuoteIM);
+
+        //Clear the NewQuote input model
+        //FriendInput.NewQuote = new QuoteIM(); 
+
+        await _quotesService.CreateQuoteAsync(quoteDto);
+
+
+        var friend = await _friendsService.ReadFriendAsync(FriendInput.FriendId, false);
+        FriendInput = new FriendIM(friend.Item);
+
+        CountrySelection = new SelectList(new List<string>
+        {
+            "Denmark",
+            "Finland",
+            "Norway",
+            "Sweden",
+            "Other",
+            "Unknown"
+        }, FriendInput.Address.Country);
 
         return Page();
     }
 
     public IActionResult OnPostEditPet(Guid petId)
     {
+        int index = FriendInput.Pets.FindIndex(p => p.PetId == petId);
+        string[] keys = { $"FriendInput.Pets[{index}].editName" };
+
+        if (!ModelState.IsValidPartially(out SeidoHelpers.ModelValidationResult validationResult, keys))
+        {
+            ValidationResult = validationResult;
+            return Page();
+        }
+
         var petIM = FriendInput.Pets.First(p => p.PetId == petId);
-        petIM.StatusIM = StatusIM.Modified;
+        if (petIM.StatusIM != StatusIM.Inserted)
+            petIM.StatusIM = StatusIM.Modified;
+
+        petIM.Name = petIM.editName;
+
+        CountrySelection = new SelectList(new List<string>
+        {
+            "Denmark",
+            "Finland",
+            "Norway",
+            "Sweden",
+            "Other",
+            "Unknown"
+        }, FriendInput.Address.Country);
 
         return Page();
     }
     public IActionResult OnPostEditQuote(Guid quoteId)
     {
+        int index = FriendInput.Quotes.FindIndex(q => q.QuoteId == quoteId);
+        string[] keys = { $"FriendInput.Quotes[{index}].editQuoteText", $"FriendInput.Quotes[{index}].editAuthor" };
+
+        if (!ModelState.IsValidPartially(out SeidoHelpers.ModelValidationResult validationResult, keys))
+        {
+            ValidationResult = validationResult;
+            return Page();
+        }
         var quoteIM = FriendInput.Quotes.First(q => q.QuoteId == quoteId);
+        
+        if(quoteIM.StatusIM != StatusIM.Inserted)
         quoteIM.StatusIM = StatusIM.Modified;
+
+        quoteIM.QuoteText = quoteIM.editQuoteText;
+        quoteIM.Author = quoteIM.editAuthor;
+
+        CountrySelection = new SelectList(new List<string>
+        {
+            "Denmark",
+            "Finland",
+            "Norway",
+            "Sweden",
+            "Other",
+            "Unknown"
+        }, FriendInput.Address.Country);
 
         return Page();
     }
@@ -401,18 +507,23 @@ public class EditFriendModel : PageModel
         [Required(ErrorMessage = "Pet must have a name")]
         public string Name { get; set; }
 
+        [Required(ErrorMessage = "Pet must have a name")]
+        public string editName { get; set; }
+
         public PetIM() { }
         public PetIM(PetIM original)
         {
             StatusIM = StatusIM.Unchanged;
             PetId = original.PetId;
             Name = original.Name;
+
+            editName = original.editName;
         }
         public PetIM(IPet model)
         {
             StatusIM = StatusIM.Unchanged;
             PetId = model.PetId;
-            Name = model.Name;
+            Name = editName = model.Name;
         }
         public IPet UpdateModel(IPet model)
         {
@@ -439,6 +550,12 @@ public class EditFriendModel : PageModel
         [Required(ErrorMessage = "Quote must have an author")]
         public string Author { get; set; }
 
+        [Required(ErrorMessage = "Quote must have text")]
+        public string editQuoteText { get; set; }
+
+        [Required(ErrorMessage = "Quote must have an author")]
+        public string editAuthor { get; set; }
+
         public QuoteIM() { }
         public QuoteIM(QuoteIM original)
         {
@@ -446,13 +563,16 @@ public class EditFriendModel : PageModel
             QuoteId = original.QuoteId;
             QuoteText = original.QuoteText;
             Author = original.Author;
+
+            editQuoteText = original.editQuoteText;
+            editAuthor = original.editAuthor;
         }
         public QuoteIM(IQuote model)
         {
             StatusIM = StatusIM.Unchanged;
             QuoteId = model.QuoteId;
-            QuoteText = model.QuoteText;
-            Author = model.Author;
+            QuoteText = editQuoteText = model.QuoteText;
+            Author = editAuthor = model.Author;
         }
         public IQuote UpdateModel(IQuote model)
         {

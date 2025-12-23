@@ -53,6 +53,7 @@ sealed public class QuoteDbM : Quote, ISeed<QuoteDbM>, IEquatable<QuoteDbM>
 
         Author = org.Author;
         QuoteText = org.Quote;
+        Seeded = false;
 
         return this;
     }

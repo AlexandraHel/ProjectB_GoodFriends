@@ -146,6 +146,7 @@ public class PetCuDto
 
 public class QuoteCuDto
 {
+     public virtual Guid FriendId { get; set; }
     public virtual Guid? QuoteId { get; set; }
     public virtual string Quote { get; set; }
     public virtual string Author { get; set; }
