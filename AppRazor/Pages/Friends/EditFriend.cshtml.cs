@@ -64,15 +64,7 @@ public class EditFriendModel : PageModel
         var response = await _friendsService.ReadFriendAsync(_friendId, false);
         FriendInput = new FriendIM(response.Item);
 
-        CountrySelection = new SelectList(new List<string>
-            {
-                "Denmark",
-                "Finland",
-                "Norway",
-                "Sweden",
-                "Other",
-                "Unknown"  //Behövs inte om det finns Choose?...
-            }, FriendInput.Address.Country);
+        RepopulateCountryselection();
         /*Friend = response.Item;
 
             Pets = Friend.Pets?.ToList();
@@ -92,15 +84,7 @@ public class EditFriendModel : PageModel
         if (!ModelState.IsValidPartially(out SeidoHelpers.ModelValidationResult validationResult, keys))
         {
             ValidationResult = validationResult;
-            CountrySelection = new SelectList(new List<string>
-                    {
-                        "Denmark",
-                        "Finland",
-                        "Norway",
-                        "Sweden",
-                        "Other",
-                        "Unknown"
-                    }, FriendInput.Address.Country);
+            RepopulateCountryselection();
             return Page();
         }
 
@@ -113,15 +97,7 @@ public class EditFriendModel : PageModel
             if (!ModelState.IsValidPartially(out SeidoHelpers.ModelValidationResult addressValidationResult, keysAddress))
             {
                 ValidationResult = addressValidationResult;
-                CountrySelection = new SelectList(new List<string>
-                {
-                    "Denmark",
-                    "Finland",
-                    "Norway",
-                    "Sweden",
-                    "Other",
-                    "Unknown"
-                }, FriendInput.Address.Country);
+                RepopulateCountryselection();
                 return Page();
             }
             await SaveAddress();
@@ -179,7 +155,8 @@ public class EditFriendModel : PageModel
     public async Task<IActionResult> OnPostUndo()
     {
         return RedirectToPage(new { id = FriendInput.FriendId });
-         /*var mg = await _mg_service.ReadMusicGroupAsync(MusicGroupInput.MusicGroupId, false);
+         /*Martins lösning:
+            var mg = await _mg_service.ReadMusicGroupAsync(MusicGroupInput.MusicGroupId, false);
 
             //Repopulate the InputModel
             MusicGroupInput = new MusicGroupIM(mg.Item);
@@ -198,15 +175,7 @@ public class EditFriendModel : PageModel
             pet.StatusIM = StatusIM.Deleted;
         }
 
-        CountrySelection = new SelectList(new List<string>
-        {
-            "Denmark",
-            "Finland",
-            "Norway",
-            "Sweden",
-            "Other",
-            "Unknown"
-        }, FriendInput.Address.Country);
+        RepopulateCountryselection();
 
         return Page();
     }
@@ -215,15 +184,7 @@ public class EditFriendModel : PageModel
         //Set the Artist as deleted, it will not be rendered
         FriendInput.Quotes.First(a => a.QuoteId == quoteId).StatusIM = StatusIM.Deleted;
 
-        CountrySelection = new SelectList(new List<string>
-        {
-            "Denmark",
-            "Finland",
-            "Norway",
-            "Sweden",
-            "Other",
-            "Unknown"
-        }, FriendInput.Address.Country);
+        RepopulateCountryselection();
 
         return Page();
     }
@@ -251,15 +212,7 @@ public class EditFriendModel : PageModel
         var friend = await _friendsService.ReadFriendAsync(FriendInput.FriendId, false);
         FriendInput = new FriendIM(friend.Item);
 
-        CountrySelection = new SelectList(new List<string>
-        {
-            "Denmark",
-            "Finland",
-            "Norway",
-            "Sweden",
-            "Other",
-            "Unknown"
-        }, FriendInput.Address.Country);
+        RepopulateCountryselection();
 
         return Page();
 
@@ -303,15 +256,7 @@ public class EditFriendModel : PageModel
         var friend = await _friendsService.ReadFriendAsync(FriendInput.FriendId, false);
         FriendInput = new FriendIM(friend.Item);
 
-        CountrySelection = new SelectList(new List<string>
-        {
-            "Denmark",
-            "Finland",
-            "Norway",
-            "Sweden",
-            "Other",
-            "Unknown"
-        }, FriendInput.Address.Country);
+        RepopulateCountryselection();
 
         return Page();
     }
@@ -333,15 +278,7 @@ public class EditFriendModel : PageModel
 
         petIM.Name = petIM.editName;
 
-        CountrySelection = new SelectList(new List<string>
-        {
-            "Denmark",
-            "Finland",
-            "Norway",
-            "Sweden",
-            "Other",
-            "Unknown"
-        }, FriendInput.Address.Country);
+        RepopulateCountryselection();
 
         return Page();
     }
@@ -363,15 +300,7 @@ public class EditFriendModel : PageModel
         quoteIM.QuoteText = quoteIM.editQuoteText;
         quoteIM.Author = quoteIM.editAuthor;
 
-        CountrySelection = new SelectList(new List<string>
-        {
-            "Denmark",
-            "Finland",
-            "Norway",
-            "Sweden",
-            "Other",
-            "Unknown"
-        }, FriendInput.Address.Country);
+        RepopulateCountryselection();
 
         return Page();
     }
@@ -589,5 +518,18 @@ public class EditFriendModel : PageModel
         };
     }
     #endregion
+
+    private void RepopulateCountryselection()
+    {
+        CountrySelection = new SelectList(new List<string>
+        {
+            "Denmark",
+            "Finland",
+            "Norway",
+            "Sweden",
+            "Other",
+            "Unknown"
+        }, FriendInput.Address.Country);
+    }
 
 }

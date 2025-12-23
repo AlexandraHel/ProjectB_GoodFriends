@@ -43,7 +43,7 @@ namespace AppRazor.Pages
         public bool Sweden { get; set; }
         
         [BindProperty]
-        public bool Unknown { get; set; }  //ska den användas på detta sätt eller bara tom?
+        public bool Unknown { get; set; }  
          
         [BindProperty]        
         public bool Other { get; set; }
@@ -65,9 +65,9 @@ namespace AppRazor.Pages
                 Finland = countries.Contains("Finland");
                 Norway = countries.Contains("Norway");
                 Sweden = countries.Contains("Sweden");
+                Other = countries.Contains("Other");
                 Unknown = countries.Contains("Unknown"); //string empty?
 
-                //Other = countries.Contains(string.Empty);
             }
 
             var resp = await _friendsService.ReadFriendsAsync(UseSeeds, false, CountryFilter, ThisPageNr, PageSize);
@@ -89,7 +89,7 @@ namespace AppRazor.Pages
             if (Norway) selectedCountries.Add("Norway");
             if (Sweden) selectedCountries.Add("Sweden");
             if (Unknown) selectedCountries.Add("Unknown");
-            //if (Other) selectedCountries.Add("Other");
+            if (Other) selectedCountries.Add("Other");
             
             CountryFilter = selectedCountries.Count > 0 ? string.Join(",", selectedCountries) : null;
             

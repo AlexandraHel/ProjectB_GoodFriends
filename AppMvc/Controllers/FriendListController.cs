@@ -40,7 +40,7 @@ public class FriendListController : Controller
         vm.Friends = resp.PageItems;
         vm.NrOfFriends = resp.DbItemsCount;
 
-        UpdatePagination(vm, resp.DbItemsCount);
+        vm.UpdatePagination(resp.DbItemsCount);
 
         return View(vm);
 

@@ -8,7 +8,7 @@ namespace AppMvc.Models
 
     public class FriendListViewModel
     {
-    
+
         public List<IFriend> Friends { get; set; }
 
         public int NrOfFriends { get; set; }
@@ -22,30 +22,37 @@ namespace AppMvc.Models
         public int NrVisiblePages { get; set; } = 0;
 
         public string CountryFilter { get; set; } = null;
-        public bool Denmark { get; set; }
-        
+
         [BindProperty] //behöver inte vara bindproperty då valet inte finns längre?
-        public bool UseSeeds { get; set; } = true; 
-        
+        public bool UseSeeds { get; set; } = true;
+
+        [BindProperty]
+        public bool Denmark { get; set; }
+
         [BindProperty]
         public bool Finland { get; set; }
-        
+
         [BindProperty]
         public bool Norway { get; set; }
-        
+
         [BindProperty]
         public bool Sweden { get; set; }
-        
+
         [BindProperty]
-        public bool Unknown { get; set; } 
-         
-        [BindProperty]        
+        public bool Unknown { get; set; }
+
+        [BindProperty]
         public bool Other { get; set; }
 
-        public FriendListViewModel(/*IFriendsService friendsService*/)
+    
+        public void UpdatePagination(int nrOfItems)
         {
-            //_friendsService = friendsService;
+            //Pagination
+            NrOfPages = (int)Math.Ceiling((double)nrOfItems / PageSize);
+            PrevPageNr = Math.Max(0, ThisPageNr - 1);
+            NextPageNr = Math.Min(NrOfPages - 1, ThisPageNr + 1);
+            NrVisiblePages = Math.Min(10, NrOfPages);
         }
-   
+
     }
 }
