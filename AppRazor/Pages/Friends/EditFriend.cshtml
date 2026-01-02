@@ -3,7 +3,6 @@
 @{
     ViewData["Title"] = "Edit Friend";
 }
-<!-- What is this? -->
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @attribute [IgnoreAntiforgeryToken]
 
@@ -70,30 +69,30 @@
                     <div class="col-sm-6">
                         <label for="streetAddress" class="form-label">Street Address</label>
                         <input type="text" class="form-control" id="streetAddress"
-                            asp-for="FriendInput.Address.StreetAddress">
-                        <span asp-validation-for="FriendInput.Address.StreetAddress" class="invalid-feedback"></span>
+                            asp-for="FriendInput.Address.EditStreetAddress">
+                        <span asp-validation-for="FriendInput.Address.EditStreetAddress" class="invalid-feedback"></span>
                     </div>
 
                     <div class="col-sm-6">
                         <label for="zipCode" class="form-label">Zip Code</label>
-                        <input type="text" class="form-control" id="zipCode" asp-for="FriendInput.Address.ZipCode"
-                            data-val="false">
+                        <input type="text" class="form-control" id="zipCode" asp-for="FriendInput.Address.EditZipCode">
+                        <span asp-validation-for="FriendInput.Address.EditZipCode" class="invalid-feedback"></span>
                     </div>
 
 
                     <div class="col-sm-6">
                         <label for="city" class="form-label">City</label>
-                        <input type="text" class="form-control" id="city" asp-for="FriendInput.Address.City">
-                        <span asp-validation-for="FriendInput.Address.City" class="invalid-feedback"></span>
+                        <input type="text" class="form-control" id="city" asp-for="FriendInput.Address.EditCity">
+                        <span asp-validation-for="FriendInput.Address.EditCity" class="invalid-feedback"></span>
                     </div>
 
                     <div class="col-sm-6">
                         <label for="country" class="form-label">Country</label>
-                        <select class="form-select" asp-for="FriendInput.Address.Country"
+                        <select class="form-select" asp-for="FriendInput.Address.EditCountry"
                             asp-items="Model.CountrySelection" id="country">
                             <option value="">-- Select Country --</option>
                         </select>
-                        <span asp-validation-for="FriendInput.Address.Country" class="invalid-feedback"></span>
+                        <span asp-validation-for="FriendInput.Address.EditCountry" class="invalid-feedback"></span>
                     </div>
 
                     <div class="row g-1">
@@ -102,7 +101,7 @@
 
                         <div class="row mb-2 text-center">
                             <div class="col-md-10 themed-grid-head-col">
-                                PetName
+                                Pet Name
                             </div>
                             <div class="col-md-2 themed-grid-head-col">
                                 <button class="btn btn-success btn-sm m-1" type="button" data-bs-toggle="collapse"
@@ -256,7 +255,7 @@
                             class="form-control" type="hidden" />
 
                         <div class="col-md-8 themed-grid-col">@Model.FriendInput.Quotes[k].QuoteText</div>
-                        <!--Bredd på kolumnen stämmer inte med label ovan-->
+                        
                         <div class="col-md-2 themed-grid-col">@Model.FriendInput.Quotes[k].Author</div>
                         <div class="col-md-2 themed-grid-col">
                             <button class="btn btn-secondary btn-sm m-1" type="button" data-bs-toggle="collapse"
@@ -331,7 +330,8 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Hämtar Friend-fält
+        const form = document.querySelector('form');
+
         const friendFields = [
             document.getElementById('firstName'),
             document.getElementById('lastName'),
@@ -339,7 +339,6 @@
             document.getElementById('birthday')
         ];
 
-        // Hämtar adressfält
         const addressFields = [
             document.getElementById('streetAddress'),
             document.getElementById('zipCode'),
@@ -347,31 +346,150 @@
             document.getElementById('country')
         ];
 
-        // Hämtar StatusIM-fälten
         const friendStatusField = document.querySelector('input[name="FriendInput.StatusIM"]');
         const addressStatusField = document.querySelector('input[name="FriendInput.Address.StatusIM"]');
+        const addressIdField = document.querySelector('input[name="FriendInput.Address.AddressId"]');
+        
+        // Har användaren en befintlig adress?
+        const hasExistingAddress = addressIdField && addressIdField.value && addressIdField.value !== '00000000-0000-0000-0000-000000000000';
 
-        // Lägg till event listeners på alla Friend-fält
+        const normalizeAddressValue = (field) => {
+            if (!field) return '';
+            const raw = (field.value ?? '').toString().trim();
+
+            // ZipCode: tom sträng = tom sträng (så ny/ingen adress inte blir "dirty")
+            if (field.id === 'zipCode') {
+                return raw;
+            }
+
+            return raw;
+        };
+
+        // Snapshot av initiala adressvärden för att kunna avgöra om adressen ändrats
+        const initialAddressValues = new Map();
+        addressFields.forEach(f => {
+            if (f) initialAddressValues.set(f.id, normalizeAddressValue(f));
+        });
+
+        const isAddressDirty = () => {
+            return addressFields.some(f => {
+                if (!f) return false;
+                return normalizeAddressValue(f) !== (initialAddressValues.get(f.id) ?? '');
+            });
+        };
+
+        // Gör jQuery unobtrusive-validering Bootstrap-kompatibel (visar invalid-feedback)
+        if (window.jQuery && window.jQuery.validator) {
+            window.jQuery.validator.setDefaults({
+                highlight: function (element) { element.classList.add('is-invalid'); },
+                unhighlight: function (element) { element.classList.remove('is-invalid'); }
+            });
+        }
+
+        const clearFieldValidation = (field) => {
+            if (!field) return;
+
+            field.classList.remove('is-invalid');
+            field.classList.remove('input-validation-error');
+
+            const name = field.getAttribute('name');
+            if (!name) return;
+            const msg = document.querySelector(`span[data-valmsg-for="${CSS.escape(name)}"]`);
+            if (msg) msg.textContent = '';
+        };
+
+        const reparseUnobtrusive = () => {
+            if (!form) return;
+            if (!window.jQuery || !window.jQuery.validator || !window.jQuery.validator.unobtrusive) return;
+
+            const $form = window.jQuery(form);
+            $form.removeData('validator');
+            $form.removeData('unobtrusiveValidation');
+            window.jQuery.validator.unobtrusive.parse($form);
+        };
+
+        const setAddressValidationEnabled = (enabled) => {
+            // Styr om unobtrusive ska plocka upp reglerna för dessa fält.
+            // Viktigt: vi reparsar form:en efter toggle.
+            addressFields.forEach(f => {
+                if (!f) return;
+                f.setAttribute('data-val', enabled ? 'true' : 'false');
+                if (!enabled) clearFieldValidation(f);
+            });
+            reparseUnobtrusive();
+        };
+
+        const syncAddressStatus = () => {
+            const dirty = isAddressDirty();
+
+            if (!addressStatusField) return;
+
+            if (!dirty) {
+                addressStatusField.value = '1'; // StatusIM.Unchanged
+                return;
+            }
+
+            // Om adress finns: Modified, annars Inserted
+            addressStatusField.value = hasExistingAddress ? '3' : '2';
+        };
+
+        // Init
+        syncAddressStatus();
+
+        // Init: validera INTE adressfält på andra actions (AddPet/EditPet/etc)
+        setAddressValidationEnabled(false);
+
+        // Event listeners på friendfält och adressfält
         friendFields.forEach(field => {
             if (field) {
                 field.addEventListener('change', function () {
-
                     if (friendStatusField) {
-                        friendStatusField.value = '3';
+                        friendStatusField.value = '3'; 
                     }
                 });
             }
         });
 
-        // Lägg till event listeners på alla adressfält
         addressFields.forEach(field => {
             if (field) {
-                field.addEventListener('change', function () {
-                    if (addressStatusField) {
-                        addressStatusField.value = '3';
-                    }
+                field.addEventListener('input', function () {
+                    syncAddressStatus();
                 });
             }
         });
+
+        // Intercepta submit:
+        // - På Save: validera adress endast om användaren ändrat adressen.
+        // - På övriga handlers: validera inte adress alls (så t.ex. AddPet funkar).
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                const submitter = e.submitter;
+                const formAction = (submitter && submitter.getAttribute('formaction')) ? submitter.getAttribute('formaction') : '';
+                const isSaveHandler = /[?&]handler=Save\b/i.test(formAction);
+
+                syncAddressStatus();
+
+                if (!isSaveHandler) {
+                    setAddressValidationEnabled(false);
+                    return;
+                }
+
+                if (!isAddressDirty()) {
+                    setAddressValidationEnabled(false);
+                    return;
+                }
+
+                setAddressValidationEnabled(true);
+
+                // Låt unobtrusive validera och fylla feltexter från DataAnnotations
+                if (window.jQuery && window.jQuery(form).length && window.jQuery(form).data('validator')) {
+                    const ok = window.jQuery(form).valid();
+                    if (!ok) {
+                        e.preventDefault();
+                        return false;
+                    }
+                }
+            });
+        }
     });
 </script>

@@ -5,7 +5,7 @@
 }
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @attribute [IgnoreAntiforgeryToken]
-<!-- Page List of friends -->
+
 <div class="container px-4 py-4" id="list-of-friends">
     <h2 class="pb-2 border-bottom">List of Friends</h2>
     <p>The database contains @Model.NrOfFriends friends from the chosen countries.</p>
@@ -38,17 +38,9 @@
                          <div class="col-md-3 ">
                             <button asp-page-handler="Search" class="btn btn-secondary" type="submit">Filter friends by country</button>
                         </div>
-                   
-                        
-                        <!--<li><a asp-controller="Form" asp-action="InputModelSimple" class="nav-link">Finland</a></li>
-                        <li class="nav-item"><a asp-controller="Form" asp-action="InputModelSimple" class="nav-link">Norway</a></li>
-                        <li class="nav-item"><a asp-controller="Form" asp-action="InputModelSimple" class="nav-link">Sweden</a></li>-->
-            
-                </li>
                     </div>
                 
                 <div class="row mb-2 text-center">
-                    <!-- This is where selected item id will be stored -->
                     <input type="hidden" name="friendId" data-seido-selected-item-id-target />
 
                     <div class="col-md-10 themed-grid-head-col">Friend Name</div>
@@ -71,6 +63,11 @@
                                         <a href="~/Friends/EditFriend?id=@item.FriendId" class="btn btn-secondary btn-sm m-1" type="button">
                                         Edit
                                         </a>
+                                        <button type="button" class="btn btn-danger btn-sm m-1" data-bs-toggle="modal" data-bs-target="#delModal"
+                                                data-seido-modal-body="@item.FirstName @item.LastName is about to be deleted."
+                                                data-seido-selected-item-id="@item.FriendId">
+                                        Delete
+                                        </button>
                                     </div>
                             }
                             <nav aria-label="Paginition">
@@ -95,6 +92,23 @@
                                 </ul>
                             </nav>
                         }
+                        <div class="modal fade" id="delModal" tabindex="-1" aria-labelledby="softModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title text-danger" id="softModalLabel">Confirm deletion</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Friend will be deleted
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" asp-page-handler="DeleteFriend" class="btn btn-primary btn-danger">Ok</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
             </div>
         </div>

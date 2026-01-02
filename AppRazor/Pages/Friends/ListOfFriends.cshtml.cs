@@ -9,7 +9,6 @@ namespace AppRazor.Pages
     public class ListOfFriendsModel : PageModel
     {
         readonly IFriendsService _friendsService = null;
-        //readonly ILogger<ListOfFriendsModel> _logger = null;
         
         public List<IFriend> Friends { get; set; }
 
@@ -23,8 +22,6 @@ namespace AppRazor.Pages
         public int NextPageNr { get; set; } = 0;
         public int NrVisiblePages { get; set; } = 0;
 
-        
-        [BindProperty] //behöver inte vara bindproperty då valet inte finns längre?
         public bool UseSeeds { get; set; } = true; 
 
         [BindProperty]
@@ -66,7 +63,7 @@ namespace AppRazor.Pages
                 Norway = countries.Contains("Norway");
                 Sweden = countries.Contains("Sweden");
                 Other = countries.Contains("Other");
-                Unknown = countries.Contains("Unknown"); //string empty?
+                Unknown = countries.Contains("Unknown"); 
 
             }
 
@@ -96,7 +93,21 @@ namespace AppRazor.Pages
             return RedirectToPage(new { pagenr = 0, search = CountryFilter });
         }
 
-        
+            public async Task<IActionResult> OnPostDeleteFriend(Guid friendId)
+        {
+            await _friendsService.DeleteFriendAsync(friendId);
+
+            //Use the Service
+            var resp = await _friendsService.ReadFriendsAsync(UseSeeds, false, CountryFilter, ThisPageNr, PageSize);
+            Friends = resp.PageItems;
+            NrOfFriends = resp.DbItemsCount;
+
+            //Pagination
+            UpdatePagination(resp.DbItemsCount);
+
+            return Page();
+        }
+
         private void UpdatePagination(int nrOfItems)
         {
             //Pagination
@@ -105,7 +116,6 @@ namespace AppRazor.Pages
             NextPageNr = Math.Min(NrOfPages - 1, ThisPageNr + 1);
             NrVisiblePages = Math.Min(10, NrOfPages);
         }
-
 
         public ListOfFriendsModel(IFriendsService friendsService)
         {
