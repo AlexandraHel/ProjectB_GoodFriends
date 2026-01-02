@@ -51,7 +51,7 @@ public class EditFriendModel : PageModel
         var response = await _friendsService.ReadFriendAsync(_friendId, false);
         FriendInput = new FriendIM(response.Item);
 
-        RepopulateCountryselection();
+        RepopulateCountrySelection();
 
         return Page();
     }
@@ -88,7 +88,7 @@ public class EditFriendModel : PageModel
         if (!ModelState.IsValidPartially(out SeidoHelpers.ModelValidationResult validationResult, keys.ToArray()))
         {
             ValidationResult = validationResult;
-            RepopulateCountryselection();
+            RepopulateCountrySelection();
             return Page();
         }
 
@@ -187,7 +187,7 @@ public class EditFriendModel : PageModel
             pet.StatusIM = StatusIM.Deleted;
         }
 
-        RepopulateCountryselection();
+        RepopulateCountrySelection();
 
         return Page();
     }
@@ -195,7 +195,7 @@ public class EditFriendModel : PageModel
     {
         FriendInput.Quotes.First(a => a.QuoteId == quoteId).StatusIM = StatusIM.Deleted;
 
-        RepopulateCountryselection();
+        RepopulateCountrySelection();
 
         return Page();
     }
@@ -223,7 +223,7 @@ public class EditFriendModel : PageModel
         var friend = await _friendsService.ReadFriendAsync(FriendInput.FriendId, false);
         FriendInput = new FriendIM(friend.Item);
 
-        RepopulateCountryselection();
+        RepopulateCountrySelection();
 
         return Page();
 
@@ -251,7 +251,7 @@ public class EditFriendModel : PageModel
         var friend = await _friendsService.ReadFriendAsync(FriendInput.FriendId, false);
         FriendInput = new FriendIM(friend.Item);
 
-        RepopulateCountryselection();
+        RepopulateCountrySelection();
 
         return Page();
     }
@@ -271,9 +271,9 @@ public class EditFriendModel : PageModel
         if (petIM.StatusIM != StatusIM.Inserted)
             petIM.StatusIM = StatusIM.Modified;
 
-        petIM.Name = petIM.editName;
+        petIM.Name = petIM.EditName;
 
-        RepopulateCountryselection();
+        RepopulateCountrySelection();
 
         return Page();
     }
@@ -292,14 +292,15 @@ public class EditFriendModel : PageModel
         if (quoteIM.StatusIM != StatusIM.Inserted)
             quoteIM.StatusIM = StatusIM.Modified;
 
-        quoteIM.QuoteText = quoteIM.editQuoteText;
-        quoteIM.Author = quoteIM.editAuthor;
+        quoteIM.QuoteText = quoteIM.EditQuoteText;
+        quoteIM.Author = quoteIM.EditAuthor;
 
-        RepopulateCountryselection();
+        RepopulateCountrySelection();
 
         return Page();
     }
 
+    // Hjälpmetod för att spara adress
     private async Task<IAddress> SaveAddress()
     {
         var resp = await _addressesService.ReadAddressAsync(FriendInput.Address.AddressId, false);
@@ -315,6 +316,7 @@ public class EditFriendModel : PageModel
 
     #region Input Models
     public enum StatusIM { Unknown, Unchanged, Inserted, Modified, Deleted }
+    
     public class FriendIM
     {
         public StatusIM StatusIM { get; set; }
@@ -381,7 +383,6 @@ public class EditFriendModel : PageModel
 
         public string Country { get; set; }
 
-        // Edit-fält (som QuoteIM): dessa har DataAnnotations och valideras bara när vi väljer att inkludera dem i keys.
         [Required(ErrorMessage = "Your friend must have a Street Address")]
         public string EditStreetAddress { get; set; }
 
@@ -449,7 +450,7 @@ public class EditFriendModel : PageModel
         public string Name { get; set; }
 
         [Required(ErrorMessage = "Pet must have a name")]
-        public string editName { get; set; }
+        public string EditName { get; set; }
 
         public PetIM() { }
         public PetIM(PetIM original)
@@ -458,13 +459,13 @@ public class EditFriendModel : PageModel
             PetId = original.PetId;
             Name = original.Name;
 
-            editName = original.editName;
+            EditName = original.EditName;
         }
         public PetIM(IPet model)
         {
             StatusIM = StatusIM.Unchanged;
             PetId = model.PetId;
-            Name = editName = model.Name;
+            Name = EditName = model.Name;
         }
         public IPet UpdateModel(IPet model)
         {
@@ -492,10 +493,10 @@ public class EditFriendModel : PageModel
         public string Author { get; set; }
 
         [Required(ErrorMessage = "Quote must have text")]
-        public string editQuoteText { get; set; }
+        public string EditQuoteText { get; set; }
 
         [Required(ErrorMessage = "Quote must have an author")]
-        public string editAuthor { get; set; }
+        public string EditAuthor { get; set; }
 
         public QuoteIM() { }
         public QuoteIM(QuoteIM original)
@@ -505,15 +506,15 @@ public class EditFriendModel : PageModel
             QuoteText = original.QuoteText;
             Author = original.Author;
 
-            editQuoteText = original.editQuoteText;
-            editAuthor = original.editAuthor;
+            EditQuoteText = original.EditQuoteText;
+            EditAuthor = original.EditAuthor;
         }
         public QuoteIM(IQuote model)
         {
             StatusIM = StatusIM.Unchanged;
             QuoteId = model.QuoteId;
-            QuoteText = editQuoteText = model.QuoteText;
-            Author = editAuthor = model.Author;
+            QuoteText = EditQuoteText = model.QuoteText;
+            Author = EditAuthor = model.Author;
         }
         public IQuote UpdateModel(IQuote model)
         {
@@ -531,7 +532,7 @@ public class EditFriendModel : PageModel
     }
     #endregion
 
-    private void RepopulateCountryselection()
+    private void RepopulateCountrySelection()
     {
         CountrySelection = new SelectList(new List<string>
         {

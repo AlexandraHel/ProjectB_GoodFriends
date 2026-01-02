@@ -1,5 +1,4 @@
-@page
-@model Pages.Friends.EditFriendModel
+@model AppMvc.Models.FriendViewModel
 @{
     ViewData["Title"] = "Edit Friend";
 }
@@ -129,7 +128,7 @@
                     @for (int k = 0; k < Model.FriendInput.Pets.Count; k++)
                     {
                         <div
-                            class="row mb-2 text-center @(Model.FriendInput.Pets[k].StatusIM == AppRazor.Pages.Friends.EditFriendModel.StatusIM.Deleted ? "d-none" : null)">
+                            class="row mb-2 text-center @(Model.FriendInput.Pets[k].StatusIM == AppMvc.Models.FriendViewModel.StatusIM.Deleted ? "d-none" : null)">
 
                             <input asp-for="FriendInput.Pets[k].StatusIM" value="@Model.FriendInput.Pets[k].StatusIM"
                                 class="form-control" type="hidden" />
@@ -243,7 +242,7 @@
                     @for (int k = 0; k < Model.FriendInput.Quotes.Count; k++)
                     {
                     <div
-                        class="row mb-2 text-center @(Model.FriendInput.Quotes[k].StatusIM == AppRazor.Pages.Friends.EditFriendModel.StatusIM.Deleted ? "d-none" : null)">
+                        class="row mb-2 text-center @(Model.FriendInput.Quotes[k].StatusIM == AppMvc.Models.FriendViewModel.StatusIM.Deleted ? "d-none" : null)">
 
                         <input asp-for="FriendInput.Quotes[k].StatusIM" value="@Model.FriendInput.Quotes[k].StatusIM"
                             class="form-control" type="hidden" />
