@@ -24,9 +24,9 @@ public class ViewFriendModel: PageModel
             var response = await _friendsService.ReadFriendAsync(_friendId, false);
             Friend = response.Item;
         
-                Pets = Friend.Pets?.ToList();
-                Quotes = Friend.Quotes?.ToList();
-                Address = Friend.Address;
+            Pets = Friend.Pets?.ToList();
+            Quotes = Friend.Quotes?.ToList();
+            Address = Friend.Address;
 
             return Page();
         }

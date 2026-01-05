@@ -10,12 +10,12 @@
 
         <h2 class="pb-2 border-bottom">
             Edit details of a friend
-            <button class="btn btn-primary-outline" type="submit" asp-page-handler="Save">
+            <button class="btn btn-primary-outline" type="submit" asp-action="Save">
                 <svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em">
                     <use xlink:href="#save" />
                 </svg>
             </button>
-            <button class="btn btn-primary-outline" type="submit" asp-page-handler="Undo" formnovalidate>
+            <button class="btn btn-primary-outline" type="submit" asp-action="Undo" formnovalidate>
                 <svg class="bi text-body-secondary flex-shrink-0 me-3" width="1.75em" height="1.75em">
                     <use xlink:href="#undo" />
                 </svg>
@@ -119,7 +119,7 @@
                             </div>
 
                             <div class="col-md-2 themed-grid-col">
-                                <button type="submit" asp-page-handler="AddPet" class="btn btn-success btn-sm m-1">
+                                <button type="submit" asp-action="AddPet" class="btn btn-success btn-sm m-1">
                                     Save
                                 </button>
                             </div>
@@ -170,8 +170,7 @@
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary"
                                                     data-bs-dismiss="modal">Cancel</button>
-                                                <button type="submit" asp-page-handler="DeletePet"
-                                                    data-seido-selected-item-id="@Model.FriendInput.Pets[k].PetId"
+                                                <button type="submit" asp-action="DeletePet" asp-route-petId="@Model.FriendInput.Pets[k].PetId"
                                                     class="btn btn-primary btn-danger" data-bs-dismiss="modal">Ok</button>
                                             </div>
                                         </div>
@@ -191,7 +190,7 @@
                             </div>
 
                             <div class="col-md-2 themed-grid-col">
-                                <button type="submit" asp-page-handler="EditPet"
+                                <button type="submit" asp-action="EditPet"
                                     asp-route-petId="@Model.FriendInput.Pets[k].PetId" class="btn btn-success btn-sm m-1">
                                     Ok
                                 </button>
@@ -234,7 +233,7 @@
                         </div>
 
                         <div class="col-md-2 themed-grid-col">
-                            <button type="submit" asp-page-handler="AddQuote" class="btn btn-success btn-sm m-1">
+                            <button type="submit" asp-action="AddQuote" class="btn btn-success btn-sm m-1">
                                 Save
                             </button>
                         </div>
@@ -286,8 +285,7 @@
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary"
                                                 data-bs-dismiss="modal">Cancel</button>
-                                            <button type="submit" asp-page-handler="DeleteQuote"
-                                                data-seido-selected-item-id="@Model.FriendInput.Quotes[k].QuoteId"
+                                            <button type="submit" asp-action="DeleteQuote" asp-route-quoteId="@Model.FriendInput.Quotes[k].QuoteId"
                                                 class="btn btn-primary btn-danger" data-bs-dismiss="modal">Ok</button>
                                         </div>
                                     </div>
@@ -308,7 +306,7 @@
                             <span asp-validation-for="FriendInput.Quotes[k].EditAuthor" class="invalid-feedback"></span>
                         </div>
                         <div class="col-md-2 themed-grid-col">
-                            <button type="submit" asp-page-handler="EditQuote"
+                            <button type="submit" asp-action="EditQuote"
                                 asp-route-quoteId="@Model.FriendInput.Quotes[k].QuoteId" class="btn btn-success btn-sm m-1">
                                 Ok
                             </button>
@@ -348,15 +346,13 @@
         const friendStatusField = document.querySelector('input[name="FriendInput.StatusIM"]');
         const addressStatusField = document.querySelector('input[name="FriendInput.Address.StatusIM"]');
         const addressIdField = document.querySelector('input[name="FriendInput.Address.AddressId"]');
-        
-        // Har användaren en befintlig adress?
+     
         const hasExistingAddress = addressIdField && addressIdField.value && addressIdField.value !== '00000000-0000-0000-0000-000000000000';
 
         const normalizeAddressValue = (field) => {
             if (!field) return '';
             const raw = (field.value ?? '').toString().trim();
 
-            // ZipCode: tom sträng = tom sträng (så ny/ingen adress inte blir "dirty")
             if (field.id === 'zipCode') {
                 return raw;
             }
@@ -377,7 +373,6 @@
             });
         };
 
-        // Gör jQuery unobtrusive-validering Bootstrap-kompatibel (visar invalid-feedback)
         if (window.jQuery && window.jQuery.validator) {
             window.jQuery.validator.setDefaults({
                 highlight: function (element) { element.classList.add('is-invalid'); },
@@ -408,8 +403,6 @@
         };
 
         const setAddressValidationEnabled = (enabled) => {
-            // Styr om unobtrusive ska plocka upp reglerna för dessa fält.
-            // Viktigt: vi reparsar form:en efter toggle.
             addressFields.forEach(f => {
                 if (!f) return;
                 f.setAttribute('data-val', enabled ? 'true' : 'false');
@@ -432,10 +425,9 @@
             addressStatusField.value = hasExistingAddress ? '3' : '2';
         };
 
-        // Init
         syncAddressStatus();
 
-        // Init: validera INTE adressfält på andra actions (AddPet/EditPet/etc)
+        // För att inte validera adressfält på andra actions (AddPet, EditPet osv)
         setAddressValidationEnabled(false);
 
         // Event listeners på friendfält och adressfält
@@ -457,18 +449,20 @@
             }
         });
 
-        // Intercepta submit:
+        //submit:
         // - På Save: validera adress endast om användaren ändrat adressen.
         // - På övriga handlers: validera inte adress alls (så t.ex. AddPet funkar).
         if (form) {
             form.addEventListener('submit', function (e) {
                 const submitter = e.submitter;
-                const formAction = (submitter && submitter.getAttribute('formaction')) ? submitter.getAttribute('formaction') : '';
-                const isSaveHandler = /[?&]handler=Save\b/i.test(formAction);
+                
+                const actionName = submitter ? submitter.getAttribute('formaction')?.split('/').pop() || 
+                                              submitter.getAttribute('asp-action') : null;
+                const isSaveAction = actionName === 'Save' || (submitter && submitter.textContent.includes('save'));
 
                 syncAddressStatus();
 
-                if (!isSaveHandler) {
+                if (!isSaveAction) {
                     setAddressValidationEnabled(false);
                     return;
                 }

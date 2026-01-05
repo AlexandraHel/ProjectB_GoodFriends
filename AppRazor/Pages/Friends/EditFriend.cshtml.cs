@@ -56,6 +56,11 @@ public class EditFriendModel : PageModel
         return Page();
     }
 
+       public async Task<IActionResult> OnPostUndo()
+    {
+        return RedirectToPage(new { id = FriendInput.FriendId });
+    }
+
     public async Task<IActionResult> OnPostSave()
     {
         var keys = new List<string>
@@ -73,7 +78,7 @@ public class EditFriendModel : PageModel
                               (address.EditZipCode.HasValue && address.EditZipCode.Value > 0);
         bool shouldProcessAddress = addressChanged && (address.AddressId != Guid.Empty || hasAddressData);
 
-        // Validera adress bara vid Save och adressen ska sparas
+        // Validerar adress bara vid Save och adressen ska sparas
         if (shouldProcessAddress)
         {
             keys.AddRange(new[]
@@ -171,15 +176,10 @@ public class EditFriendModel : PageModel
                 await _quotesService.UpdateQuoteAsync(quoteToUpdateDto);
             }
         }
-        return Redirect($"~/Friends/ListOfFriends");
+        return Redirect($"~/Friends/ViewFriend?id={FriendInput.FriendId}");
     }
 
-    public async Task<IActionResult> OnPostUndo()
-    {
-        return RedirectToPage(new { id = FriendInput.FriendId });
-    }
-
-    public IActionResult OnPostDeletePet(Guid petId)
+    public IActionResult OnPostDeletePet(Guid petId)    
     {
         var pet = FriendInput.Pets.FirstOrDefault(a => a.PetId == petId);
         if (pet != null)
@@ -193,7 +193,11 @@ public class EditFriendModel : PageModel
     }
     public IActionResult OnPostDeleteQuote(Guid quoteId)
     {
-        FriendInput.Quotes.First(a => a.QuoteId == quoteId).StatusIM = StatusIM.Deleted;
+        var quote = FriendInput.Quotes.FirstOrDefault(a => a.QuoteId == quoteId);
+        if (quote != null)
+        {
+            quote.StatusIM = StatusIM.Deleted;
+        }
 
         RepopulateCountrySelection();
 
