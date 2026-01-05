@@ -97,12 +97,10 @@ namespace AppRazor.Pages
         {
             await _friendsService.DeleteFriendAsync(friendId);
 
-            //Use the Service
             var resp = await _friendsService.ReadFriendsAsync(UseSeeds, false, CountryFilter, ThisPageNr, PageSize);
             Friends = resp.PageItems;
             NrOfFriends = resp.DbItemsCount;
 
-            //Pagination
             UpdatePagination(resp.DbItemsCount);
 
             return Page();
@@ -110,7 +108,6 @@ namespace AppRazor.Pages
 
         private void UpdatePagination(int nrOfItems)
         {
-            //Pagination
             NrOfPages = (int)Math.Ceiling((double)nrOfItems / PageSize);
             PrevPageNr = Math.Max(0, ThisPageNr - 1);
             NextPageNr = Math.Min(NrOfPages - 1, ThisPageNr + 1);

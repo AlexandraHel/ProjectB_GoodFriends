@@ -409,8 +409,6 @@
         };
 
         const setAddressValidationEnabled = (enabled) => {
-            // Styr om unobtrusive ska plocka upp reglerna för dessa fält.
-            // Viktigt: vi reparsar form:en efter toggle.
             addressFields.forEach(f => {
                 if (!f) return;
                 f.setAttribute('data-val', enabled ? 'true' : 'false');
@@ -433,10 +431,9 @@
             addressStatusField.value = hasExistingAddress ? '3' : '2';
         };
 
-        // Init
         syncAddressStatus();
 
-        // Init: validera INTE adressfält på andra actions (AddPet/EditPet/etc)
+        // Init: inte validera adressfält på andra actions (AddPet, EditPet osv)
         setAddressValidationEnabled(false);
 
         // Event listeners på friendfält och adressfält
@@ -458,9 +455,9 @@
             }
         });
 
-        // Intercepta submit:
-        // - På Save: validera adress endast om användaren ändrat adressen.
-        // - På övriga handlers: validera inte adress alls (så t.ex. AddPet funkar).
+        //   submit:
+        // - På Save: validerar adress endast om användaren ändrat adressen.
+        // - På övriga handlers: validerar inte adress alls (så t.ex. AddPet funkar).
         if (form) {
             form.addEventListener('submit', function (e) {
                 const submitter = e.submitter;
@@ -481,7 +478,6 @@
 
                 setAddressValidationEnabled(true);
 
-                // Låt unobtrusive validera och fylla feltexter från DataAnnotations
                 if (window.jQuery && window.jQuery(form).length && window.jQuery(form).data('validator')) {
                     const ok = window.jQuery(form).valid();
                     if (!ok) {

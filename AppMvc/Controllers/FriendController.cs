@@ -30,8 +30,6 @@ namespace AppMvc.Controllers
             _quotesService = quotesService;
         }
 
-       // public SeidoHelpers.ModelValidationResult ValidationResult { get; set; } = new SeidoHelpers.ModelValidationResult(false, null, null);
-
         [HttpGet]
         public async Task<IActionResult> ViewFriend(string id)
         {
@@ -54,11 +52,6 @@ namespace AppMvc.Controllers
             {
                 FriendInput = new FriendViewModel.FriendIM(response.Item)
             };
-            //vm.Friend = response.Item;
-
-            //vm.Pets = vm.Friend.Pets?.ToList();
-            //vm.Quotes = vm.Friend.Quotes?.ToList();
-            //vm.Address = vm.Friend.Address;
             
             RepopulateCountrySelection(vm);
             return View(vm);
@@ -93,15 +86,15 @@ namespace AppMvc.Controllers
                                 (address.EditZipCode.HasValue && address.EditZipCode.Value > 0);
             bool shouldProcessAddress = addressChanged && (address.AddressId != Guid.Empty || hasAddressData);
 
-            // Validerar adress bara vid Save och adressen ska sparas (Om tomt guid så ska adress krävas)
+            // Validerar adress bara vid Save och adressen ska sparas (Om tomt Guid och inga ändringar skett ska den inte valideras)
             if (shouldProcessAddress)
             {
                 keys.AddRange(new[]
                 {
-                    "vm.FriendInput.Address.EditStreetAddress",
-                    "vm.FriendInput.Address.EditZipCode",
-                    "vm.FriendInput.Address.EditCity",
-                    "vm.FriendInput.Address.EditCountry"
+                    "FriendInput.Address.EditStreetAddress",
+                    "FriendInput.Address.EditZipCode",
+                    "FriendInput.Address.EditCity",
+                    "FriendInput.Address.EditCountry"
                 });
             }
            

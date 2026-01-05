@@ -223,7 +223,6 @@ public class EditFriendModel : PageModel
 
         await _petsService.CreatePetAsync(petDto);
 
-        // Reload friend to get updated Pets list
         var friend = await _friendsService.ReadFriendAsync(FriendInput.FriendId, false);
         FriendInput = new FriendIM(friend.Item);
 
